@@ -9,7 +9,8 @@ export const createPaymentLink = async ({ reservation, user }) => {
     const PORT = process.env.PORT || 3000;
     const HOST = process.env.HOST || 'localhost';
 
-    const amountInCents = parseInt(Number(reservation.montant) * 100);
+    const amountInCents = Math.round(Number(reservation.montant) * 100);
+
     const statutPaiement = 'en_attente';
 
     const transaction = await Transaction.create({
@@ -75,7 +76,7 @@ export const PaiementCallbackService = async (transactionData) => {
 
     // Récupérer la réservation
     const reservation = await prisma.reservation.findUnique({
-      where: { id_reservation: Number(id_reservation) }
+      where: { id_reservation }
     });
     if (!reservation) throw new Error('Réservation introuvable');
 
@@ -94,7 +95,7 @@ export const PaiementCallbackService = async (transactionData) => {
           where: { transaction: String(id) },
           data: {
             statut: statutPaiement,
-            montant: montantPaye || existingPaiement.montant,
+            montant: montantPaye ?? existingPaiement.montant,
             methode: methodePaiement
           }
         });
@@ -104,7 +105,7 @@ export const PaiementCallbackService = async (transactionData) => {
           data: {
             id_reservation: reservation.id_reservation,
             id_user: reservation.id_user,
-            montant: montantPaye || Number(reservation.montant),
+            montant: montantPaye ?? Number(reservation.montant),
             statut: statutPaiement,
             methode: methodePaiement,
             transaction: String(id)
@@ -113,36 +114,35 @@ export const PaiementCallbackService = async (transactionData) => {
       }
 
       // Si le paiement a réussi, mettre à jour la réservation et les places
-      if (statutPaiement === 'reussi') {
+      if (statutPaiement === 'reussi' && reservation.statut !== 'confirmee') {
         await tx.reservation.update({
           where: { id_reservation: reservation.id_reservation },
           data: { statut: 'confirmee' }
         });
 
         // Mise à jour des places pour l'événement
+         // ✅ Décrément atomique événement
         if (reservation.id_evenement) {
-          const evenement = await tx.evenement.findUnique({
-            where: { id_evenement: reservation.id_evenement }
+          await tx.evenement.update({
+            where: { id_evenement: reservation.id_evenement },
+            data: {
+              nombre_place: {
+                decrement: reservation.nombre_personnes
+              }
+            }
           });
-          if (evenement) {
-            await tx.evenement.update({
-              where: { id_evenement: reservation.id_evenement },
-              data: { nombre_place: evenement.nombre_place - reservation.nombre_personnes }
-            });
-          }
         }
 
-        // Mise à jour des places pour la visite
+        // ✅ Décrément atomique visite
         if (reservation.id_visite) {
-          const visite = await tx.visite.findUnique({
-            where: { id_visite: reservation.id_visite }
+          await tx.visite.update({
+            where: { id_visite: reservation.id_visite },
+            data: {
+              nombre_places: {
+                decrement: reservation.nombre_personnes
+              }
+            }
           });
-          if (visite) {
-            await tx.visite.update({
-              where: { id_visite: reservation.id_visite },
-              data: { nombre_places: visite.nombre_places - reservation.nombre_personnes }
-            });
-          }
         }
       }
     });
@@ -158,6 +158,3 @@ export const PaiementCallbackService = async (transactionData) => {
     throw error;
   }
 };
-
-
-

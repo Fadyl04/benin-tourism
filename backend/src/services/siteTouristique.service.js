@@ -4,59 +4,48 @@ import prisma from "../config/db.config.js";
  * Créer un événement
  */
 export const createSiteService = async (data) => {
-    return await prisma.siteTouristique.create({data});
+  return await prisma.siteTouristique.create({data});
 };
 
 /**
  * Récupérer tous les sites touristiques
  */
 export const getAllSiteService = async () => {
-    return await prisma.siteTouristique.findMany({
-        include: {
-            visiteSites: true
-        }
-    });
+  return await prisma.siteTouristique.findMany({
+    include: {
+      visiteSites: true
+    }
+  });
 };
 
 /**
  * Récupérer un site touristique par ID
  */
 export const getSiteByIdService = async (id) => {
-    return await prisma.siteTouristique.findUnique({
-        where: { id_site: Number(id) },
-        include: { visiteSites: true }
-      });
+  return await prisma.siteTouristique.findUnique({
+    where: { id_site: id },
+    include: { visiteSites: true }
+  });
 };
 
 /**
- * Mettre à jour un événement
+ * Mettre à jour un site touristique
  */
 export const updateSiteService = async (id, data) => {
     return await prisma.siteTouristique.update({
-        where: { id_site: parseInt(id) },
+        where: { id_site: id },
         data
     });
 };
   
 /**
- * Supprimer un événement
+ * Supprimer un site touristique
  */
 export const deleteSiteService = async (id) => {
   try {
-    const siteId = parseInt(id);
-    
-    // Vérifier d'abord si le site existe
-    const existingSite = await prisma.siteTouristique.findUnique({
-      where: { id_site: siteId }
-    });
-
-    if (!existingSite) {
-      return null;
-    }
-
     // Supprimer le site
     return await prisma.siteTouristique.delete({
-      where: { id_site: siteId }
+      where: { id_site: id }
     });
 
   } catch (error) {
@@ -89,13 +78,13 @@ export const searchSiteService = async (nom) => {
  */
 export const findSiteExistService = async ({ nom, description, localisation }, excludeId = null) => {
     const whereClause = {
-      nom: nom,
-      description: description,
-      localisation: localisation
+      nom,
+      description,
+      localisation
     };
   
     if (excludeId) {
-      whereClause.id_site = { not: Number(excludeId) }; 
+      whereClause.id_site = { not: excludeId }; 
     }
     return await prisma.siteTouristique.findFirst({
       where: whereClause

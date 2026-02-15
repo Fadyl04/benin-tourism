@@ -37,7 +37,7 @@ export const uploadError = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        message: 'Fichier trop volumineux (max 30MB)'
+        message: 'Fichier trop volumineux (max 50MB)'
       });
     }
     if (err.code === 'LIMIT_UNEXPECTED_FILE') {

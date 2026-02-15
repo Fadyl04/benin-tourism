@@ -6,6 +6,8 @@ import prisma from '../config/db.config.js';
 export const createReservationService = async (data, id_user) => {
   const { id_visite, id_evenement, nombre_personnes, ticket_visite, ticket_evenement } = data;
 
+  if (!id_user) throw new Error("Utilisateur non défini");
+
   // --- Vérifications de base ---
   if (!id_evenement && !id_visite) {
     throw new Error("Une réservation doit concerner soit un évènement soit une visite.");
@@ -24,7 +26,7 @@ export const createReservationService = async (data, id_user) => {
   // ----- Cas ÉVÉNEMENT -----
   if (id_evenement) {
     const evenement = await prisma.evenement.findUnique({
-      where: { id_evenement: Number(id_evenement) }
+      where: { id_evenement }
     });
 
     if (!evenement) throw new Error("Événement introuvable");
@@ -40,13 +42,13 @@ export const createReservationService = async (data, id_user) => {
       default: throw new Error("Type de ticket événement invalide");
     }
 
-    montantTotal += Number(prixEvenement) * nombre_personnes;
+    montantTotal += parseFloat(prixEvenement) * nombre_personnes;
   }
 
   // ----- Cas VISITE -----
   if (id_visite) {
     const visite = await prisma.visite.findUnique({
-      where: { id_visite: Number(id_visite) }
+      where: { id_visite }
     });
 
     if (!visite) throw new Error("Visite introuvable");
@@ -61,15 +63,15 @@ export const createReservationService = async (data, id_user) => {
       default: throw new Error("Type de ticket visite invalide");
     }
 
-    montantTotal += Number(prixVisite) * nombre_personnes;
+    montantTotal += parseFloat(prixVisite) * nombre_personnes;
   }
 
   // ----- Création de la réservation -----
   const reservation = await prisma.reservation.create({
     data: {
-      id_user: Number(id_user),
-      id_visite: id_visite ? Number(id_visite) : null,
-      id_evenement: id_evenement ? Number(id_evenement) : null,
+      id_user,
+      id_visite: id_visite || null,
+      id_evenement: id_evenement || null,
       nombre_personnes,
       montant: montantTotal,
       statut: "en_attente",
@@ -108,7 +110,7 @@ export const getAllReservationsService = async () => {
  */
 export const getReservationByIdService = async (id) => {
     return await prisma.reservation.findUnique({
-      where: { id_reservation: Number(id) },
+      where: { id_reservation },
       include: {
         user: true,
         evenement: true,
@@ -121,9 +123,9 @@ export const getReservationByIdService = async (id) => {
 /**
  * Annuler une reservation
  */
-export const cancelReservationService = async (id) => {
+export const cancelReservationService = async (id_reservation) => {
   const reservation = await prisma.reservation.findUnique({
-    where: { id_reservation: Number(id) },
+    where: { id_reservation },
   });
 
   if (!reservation) {
@@ -134,9 +136,8 @@ export const cancelReservationService = async (id) => {
     throw new Error('Cette réservation est déjà annulée');
   }
   // Mise à jour du statut
-  const updatedReservation = await prisma.reservation.update({
-    where: { id_reservation: Number(id) },
+  return await prisma.reservation.update({
+    where: { id_reservation },
     data: { statut: 'annulee' },
   });
-  return updatedReservation;
 };

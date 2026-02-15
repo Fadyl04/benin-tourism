@@ -67,7 +67,9 @@ export const registerPrestataireService = async (data) => {
             annee_experience: parseInt(annee_experience),
             document_justificatif: document_justificatif || null,
             statut_validation: 'en_attente',
-            image: image || null
+            image: image || null,
+            statut: 'inactif',
+            firstLogin: true
           }
         }
       },
@@ -131,7 +133,7 @@ export const loginPrestataireService = async ({ email, password }) => {
       prenom: user.prenom,
       email: user.email,
       role: user.role,
-      firstLogin: user.firstLogin
+      firstLogin: user.prestataire.firstLogin
     }
   };
 };
@@ -237,20 +239,14 @@ export const deletePrestataireService = async (id) => {
  */
 export const updatePrestataireService = async (id, data) => {
   try {
-    const prestataireId = parseInt(id);
-    
-    // Vérifier si le prestataire existe
-    const existingPrestataire = await prisma.prestataire.findUnique({
-      where: { id_prestataire: prestataireId }
+    const prestataire = await prisma.prestataire.findUnique({
+      where: { id_prestataire: id }
     });
-
-    if (!existingPrestataire) {
-      return null;
-    }
-
-    return await prisma.prestataire.update({
-      where: { id_prestataire: prestataireId },
-      data: data,
+    if (!prestataire) return null;
+   
+    return prisma.prestataire.update({
+      where: { id_prestataire: id },
+      data,
       include: { user: true }
     });
 

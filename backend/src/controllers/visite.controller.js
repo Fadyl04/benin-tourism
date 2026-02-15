@@ -19,9 +19,9 @@ export const createVisiteController = async (req, res) => {
     // Préparation des données avec gestion des champs vides
     const inputData = { 
       ...req.body, 
-      image: image,
-      id_hotel: req.body.id_hotel === '' ? null : req.body.id_hotel,
-      id_transport: req.body.id_transport === '' ? null : req.body.id_transport
+      image,
+      id_hotel: req.body.id_hotel || null,
+      id_transport: req.body.id_transport || null 
     };
 
     // Validation avec Zod
@@ -56,10 +56,10 @@ export const createVisiteController = async (req, res) => {
 
     // Création de la visite
     const visite = await createVisiteService({
-      ...data,
-      id_guide: Number(data.id_guide),
-      id_hotel: data.id_hotel ? Number(data.id_hotel) : null,
-      id_transport: data.id_transport ? Number(data.id_transport) : null,
+      ...data, 
+      id_guide: data.id_guide,
+      id_hotel: data.id_hotel || null,
+      id_transport: data.id_transport || null,
       siteIds: Array.isArray(data.siteIds) ? data.siteIds.map(Number) : []
     });
 
@@ -84,12 +84,12 @@ export const createVisiteController = async (req, res) => {
  * Récupérer toutes les visites
  */
 export const getAllVisiteController = async (req, res) => {
-    try {
-        const visites = await getAllVisiteService();
-        res.status(200).json({ success: true, data: visites });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+  try {
+    const visites = await getAllVisiteService();
+    res.status(200).json({ success: true, data: visites });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
   
 /**
@@ -98,8 +98,7 @@ export const getAllVisiteController = async (req, res) => {
 export const getVisiteByIdController = async (req, res) => {
   try {
     const { id_visite } = req.params;
-    const visiteId = Number(id_visite);
-
+    
     if (!id_visite || isNaN(visiteId)) {
       return res.status(400).json({
         success: false,
@@ -107,7 +106,7 @@ export const getVisiteByIdController = async (req, res) => {
       });
     }
 
-    const visite = await getVisiteByIdService(visiteId);
+    const visite = await getVisiteByIdService(id_visite);
 
     if (!visite) {
       return res.status(404).json({ success: false, message: "Visite non trouvée" });
@@ -128,17 +127,17 @@ export const getVisiteByIdController = async (req, res) => {
 export const deleteVisiteController = async (req, res) => {
     try {
       const { id_visite } = req.params;
-      const visiteId = Number(id_visite);
-      if (isNaN(visiteId)) {
+      
+      if (!id_visite) {
         return res.status(400).json({ 
           success: false, 
           message: "ID d'événement invalide" 
         });
       }
-      const answers =  await deleteVisiteService(visiteId);
-      if (!answers) {
+      const deleted =  await deleteVisiteService(id_visite);
+      if (!deleted) {
         return res.status(404).json({ success: false, message: "Visite non trouvé" });
-      }
+      } 
       res.status(200).json({success: true,message: "Visite supprimée avec succès" });
     } catch (error) {
       console.error('Error in deleteVisiteController:', error);
@@ -155,116 +154,92 @@ export const deleteVisiteController = async (req, res) => {
 export const updateVisiteController = async (req, res) => {
   try {
     const { id_visite } = req.params;
-    const visiteId = Number(id_visite);
 
-    if (!id_visite || isNaN(visiteId)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Identifiant de visite invalide." 
+    if (!id_visite) {
+      return res.status(400).json({
+        success: false,
+        message: "Identifiant invalide"
       });
     }
 
-    // Gestion du fichier image
     const image = req.file ? `/uploads/${req.file.filename}` : undefined;
 
-    // Préparation des données pour validation
     const payload = { ...req.body, image };
 
-    // Si siteIds fourni en string (JSON ou CSV), convertir en tableau de nombres
-    if (payload.siteIds) {
-      if (typeof payload.siteIds === "string") {
-        try {
-          const maybe = JSON.parse(payload.siteIds);
-          payload.siteIds = Array.isArray(maybe) ? maybe.map(Number) : payload.siteIds.split(",").map(s => Number(s.trim()));
-        } catch {
-          payload.siteIds = payload.siteIds.split(",").map(s => Number(s.trim()));
-        }
+    // Conversion siteIds si string JSON
+    if (typeof payload.siteIds === "string") {
+      try {
+        payload.siteIds = JSON.parse(payload.siteIds);
+      } catch {
+        payload.siteIds = payload.siteIds.split(",");
       }
-      payload.siteIds = payload.siteIds.filter(id => !isNaN(id));
     }
 
-    // Conversion sécurisée des champs numériques
-    const numericFields = ["prix_economique", "prix_confort", "prix_premium", "nombre_places", "id_guide", "id_hotel", "id_transport"];
-    numericFields.forEach(field => {
-      if (payload[field] !== undefined && payload[field] !== null && payload[field] !== '') {
-        payload[field] = Number(payload[field]);
-      } else if (payload[field] === '') {
-        payload[field] = null; // Pour les champs nullable
-      }
-    });
-
-    // Validation avec Zod (partielle autorisée)
     const parsed = visiteSchema.partial().safeParse(payload);
+
     if (!parsed.success) {
-      const errorMessages = parsed.error.issues.map(issue => ({
-        field: issue.path.join('.'),
-        message: issue.message
-      }));
-      
       return res.status(400).json({
         success: false,
         message: "Validation échouée",
-        errors: errorMessages
+        errors: parsed.error.issues.map(issue => ({
+          field: issue.path.join('.'),
+          message: issue.message
+        }))
       });
     }
 
     const visiteData = parsed.data;
 
-    // Vérification des doublons (uniquement si les champs concernés sont modifiés)
     if (visiteData.nom && visiteData.description && visiteData.date_debut) {
-      const existingVisite = await findVisiteExistService({
-        nom: visiteData.nom,
-        description: visiteData.description,
-        date_debut: visiteData.date_debut
-      }, visiteId);
+      const existing = await findVisiteExistService(
+        {
+          nom: visiteData.nom,
+          description: visiteData.description,
+          date_debut: visiteData.date_debut
+        },
+        id_visite
+      );
 
-      if (existingVisite && existingVisite.id_visite !== visiteId) {
+      if (existing && existing.id_visite !== id_visite) {
         return res.status(400).json({
           success: false,
-          message: "Une autre visite avec ces caractéristiques (nom, description, date) existe déjà !"
+          message: "Une autre visite avec ces caractéristiques existe déjà."
         });
       }
     }
 
-    const updatedVisite = await updateVisiteService(visiteId, visiteData);
+    const updated = await updateVisiteService(id_visite, visiteData);
 
-    if (!updatedVisite) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Visite non trouvée." 
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Visite non trouvée"
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "Visite mise à jour avec succès",
-      data: updatedVisite
+      data: updated
     });
 
   } catch (error) {
-    console.error("Erreur updateVisiteController :", error);
+    console.error("Erreur updateVisiteController:", error);
 
-    // Gestion spécifique des erreurs Prisma
     if (error.code === "P2025") {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Visite non trouvée." 
-      });
-    }
-
-    if (error.code === "P2002") {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Une visite avec ces caractéristiques existe déjà." 
+      return res.status(404).json({
+        success: false,
+        message: "Visite non trouvée"
       });
     }
 
     return res.status(500).json({
       success: false,
-      message: error.message || "Erreur lors de la mise à jour de la visite"
+      message: error.message
     });
   }
 };
+
 /**
  * Rechercher une visite par nom
  */

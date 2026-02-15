@@ -46,8 +46,7 @@ export const registerClientController = async (req, res) => {
           prenom: client.prenom,
           email: client.email,
           role: client.role,
-          statut: client.statut ?? undefined,
-          firstLogin: client.firstLogin ?? undefined,
+          
         },
       });
     } catch (error) {

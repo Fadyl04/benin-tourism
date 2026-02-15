@@ -1,4 +1,3 @@
-import { success } from 'zod';
 import {
   createSiteService,
   getAllSiteService,
@@ -16,7 +15,14 @@ import { siteTouristiqueSchema } from '../utils/validators.js';
  */
 export const createSiteController = async (req, res) => {
   try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "L'image est obligatoire"
+      });
+    }
+    const imagePath = `/uploads/${req.file.filename}`;
 
     // Validation avec Zod
     const validatedData = siteTouristiqueSchema.safeParse({ ...req.body, image: imagePath });
@@ -82,13 +88,6 @@ export const getSiteByIdController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
-      return res.status(400).json({
-        success: false,
-        message: "L'identifiant du site est requis."
-      });
-    }
-
     const site = await getSiteByIdService(id);
 
     if (!site) {
@@ -113,61 +112,49 @@ export const getSiteByIdController = async (req, res) => {
  */
 export const updateSiteController = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
-    const updateSite = {...req.body, image: imagePath};
+    const { id } = req.params;
 
-    // Validation avec Zod
-    const validated = siteTouristiqueSchema.partial().safeParse(updateSite);
+    const imagePath = req.file ? `/uploads/${req.file.filename}`
+      : undefined;
+
+    const updateData = {
+      ...req.body,
+      ...(imagePath && { image: imagePath })
+    };
+
+    const validated = siteTouristiqueSchema.partial().safeParse(updateData);
+
     if (!validated.success) {
-      const errorMessages = validated.error.issues.map(issue => issue.message);
-      
       return res.status(400).json({
-        success: false, 
-        message: "Erreur de validation", 
-        errors: errorMessages
+        success: false,
+        message: "Erreur de validation",
+        errors: validated.error.issues.map(i => i.message)
       });
-    }
-
-    const siteData = validated.data;
-
-    if (siteData.nom && siteData.description && siteData.localisation) {
-      const existingSite = await findSiteExistService({
-        nom: siteData.nom,
-        description: siteData.description,
-        localisation: siteData.localisation
-      }, id);
-
-      if (existingSite && existingSite.id_site !== Number(id)) {
-        return res.status(400).json({
-          success: false,
-          message: "Un autre site avec ces caractéristiques (nom, description, localisation) existe déjà !"
-        });
-      }
     }
 
     const site = await updateSiteService(id, validated.data);
 
-    if (!site) {
-      return res.status(404).json({                    
-        success: false, 
+    res.status(200).json({
+      success: true,
+      message: "Site mis à jour avec succès",
+      data: site
+    });
+
+  } catch (error) {
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
         message: "Site non trouvé"
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Site mis à jour avec succès',
-      data: site
-    });
-  } catch (error) {
-    console.error("Error de updateSiteController:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || "Erreur serveur lors de la mise à jour"
+    res.status(500).json({
+      success: false,
+      message: error.message
     });
   }
 };
+
 
 /**
  * Supprimer un site tousistique
@@ -175,53 +162,29 @@ export const updateSiteController = async (req, res) => {
 export const deleteSiteController = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    if (!id) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "ID site manquant" 
-      });
-    }
-    
-    const siteId = Number(id);
-    if (isNaN(siteId)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "ID site invalide" 
-      });
-    }
-    
-    const result = await deleteSiteService(siteId);
-    
+
+    const result = await deleteSiteService(id);
+
     if (!result) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Site non trouvé" 
+      return res.status(404).json({
+        success: false,
+        message: "Site non trouvé"
       });
     }
-    
-    res.status(200).json({ 
-      success: true, 
-      message: 'Site touristique supprimé avec succès',
-      data: result 
+
+    res.status(200).json({
+      success: true,
+      message: "Site supprimé avec succès"
     });
-    
+
   } catch (error) {
-    console.error('Error in deleteSiteController:', error);
-    
-    if (error.code === 'P2025') {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Site non trouvé" 
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: "Erreur serveur lors de la suppression"
     });
   }
 };
+
 
 /**
  * Rechercher un site tousistique

@@ -21,7 +21,7 @@ export const getAllEvenementService = async () => {
  */
 export const getEvenementByIdService = async (id) => {
   return await prisma.evenement.findUnique({
-    where: { id_evenement: Number(id) },
+    where: { id_evenement: id },
   });
 };
 
@@ -30,7 +30,7 @@ export const getEvenementByIdService = async (id) => {
  */
 export const updateEvenementService = async (id, data) => {
   return await prisma.evenement.update({
-    where: { id_evenement: parseInt(id, 10) },
+    where: { id_evenement: id},
     data,
   });
 };
@@ -39,9 +39,16 @@ export const updateEvenementService = async (id, data) => {
  * Supprimer un événement
  */
 export const deleteEvenementService = async (id) => {
-  return await prisma.evenement.delete({
-    where: { id_evenement: parseInt(id)},
-  });
+  try {
+    return await prisma.evenement.delete({
+      where: { id_evenement: id },
+    });
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null; 
+    }
+    throw error;
+  }
 };
 
 /**
@@ -49,7 +56,7 @@ export const deleteEvenementService = async (id) => {
  */
 export const searchEvenementService = async (nom) => {
   if (!nom || nom.trim() === '') {
-    throw new Error('Le nom de l\'événement est requis pour la recherche');
+    throw new Error("Le nom de l'événement est requis pour la recherche");
   }
   const evenements = await prisma.evenement.findMany({
     where: {
@@ -68,16 +75,18 @@ export const searchEvenementService = async (nom) => {
  * Vérifier si un événement existe déjà par nom, description, date et localisation
  */
 export const findEvenementExistService = async ({ nom, description, date_debut, localisation }, excludeId = null) => {
-  const clause = {
-    nom: nom,
-    description: description,
-    date_debut: date_debut,
-    localisation: localisation
+  const whereClause = {
+    nom,
+    description,
+    date_debut,
+    localisation,
   };
+
   if (excludeId) {
-    clause.id_evenement = {not : Number(excludeId)}
+    whereClause.id_evenement = { not: excludeId }; // PAS Number(excludeId)
   }
+
   return await prisma.evenement.findFirst({
-    where: clause
+    where: whereClause
   });
 };
