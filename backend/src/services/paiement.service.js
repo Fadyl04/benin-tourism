@@ -61,36 +61,36 @@ export const PaiementCallbackService = async (transactionData) => {
 
     if (!id) throw new Error('Transaction ID manquant');
 
-    // Corriger le montant (FedaPay renvoie en centimes)
     const montantPaye = amount ? Number(amount) / 100 : undefined;
 
-    // Déterminer le statut du paiement
-    const statutPaiement = ['reussi', 'approved', 'paid'].includes(statut) ? 'reussi'
+    const statutPaiement =
+      ['reussi', 'approved', 'paid'].includes(statut) ? 'reussi'
       : ['echec', 'failed'].includes(statut) ? 'echec'
-    : 'en_attente';
+      : 'en_attente';
 
-    // Mapper la méthode de paiement
     let methodePaiement = 'mobile_money';
     if (methode === 'card') methodePaiement = 'carte_bancaire';
-    if (methode === 'mobile_money') methodePaiement = 'mobile_money';
 
-    // Récupérer la réservation
     const reservation = await prisma.reservation.findUnique({
       where: { id_reservation }
     });
+
     if (!reservation) throw new Error('Réservation introuvable');
 
     let paiement;
+    let placesRestantes = null;
 
-    // Transaction atomique
     await prisma.$transaction(async (tx) => {
-      // Vérifier si le paiement existe déjà
+
       const existingPaiement = await tx.paiement.findUnique({
         where: { transaction: String(id) }
       });
 
+      let ancienStatut = null;
+
       if (existingPaiement) {
-        // Mettre à jour le paiement existant
+        ancienStatut = existingPaiement.statut;
+
         paiement = await tx.paiement.update({
           where: { transaction: String(id) },
           data: {
@@ -99,8 +99,8 @@ export const PaiementCallbackService = async (transactionData) => {
             methode: methodePaiement
           }
         });
+
       } else {
-        // Créer un nouveau paiement
         paiement = await tx.paiement.create({
           data: {
             id_reservation: reservation.id_reservation,
@@ -113,17 +113,40 @@ export const PaiementCallbackService = async (transactionData) => {
         });
       }
 
-      // Si le paiement a réussi, mettre à jour la réservation et les places
-      if (statutPaiement === 'reussi' && reservation.statut !== 'confirmee') {
+      // Vérification du montant (sécurité anti-fraude)
+      if (statutPaiement === 'reussi' && montantPaye) {
+        if (montantPaye !== Number(reservation.montant)) {
+          throw new Error('Montant incohérent');
+        }
+      }
+
+      // Décrémenter UNE SEULE FOIS
+      const decremente =
+        statutPaiement === 'reussi' &&
+        (!existingPaiement || ancienStatut !== 'reussi');
+
+      if (decremente) {
+
+        // Confirmer la réservation
         await tx.reservation.update({
           where: { id_reservation: reservation.id_reservation },
           data: { statut: 'confirmee' }
         });
 
-        // Mise à jour des places pour l'événement
-         // ✅ Décrément atomique événement
+        // ----------- EVENEMENT -----------
         if (reservation.id_evenement) {
-          await tx.evenement.update({
+
+          const evenement = await tx.evenement.findUnique({
+            where: { id_evenement: reservation.id_evenement }
+          });
+
+          if (!evenement)
+            throw new Error('Événement introuvable');
+
+          if (evenement.nombre_place < reservation.nombre_personnes)
+            throw new Error('Places insuffisantes');
+
+          const evenements = await tx.evenement.update({
             where: { id_evenement: reservation.id_evenement },
             data: {
               nombre_place: {
@@ -131,11 +154,24 @@ export const PaiementCallbackService = async (transactionData) => {
               }
             }
           });
+
+          placesRestantes = evenements.nombre_place;
         }
 
-        // ✅ Décrément atomique visite
+        // ----------- VISITE -----------
         if (reservation.id_visite) {
-          await tx.visite.update({
+
+          const visite = await tx.visite.findUnique({
+            where: { id_visite: reservation.id_visite }
+          });
+
+          if (!visite)
+            throw new Error('Visite introuvable');
+
+          if (visite.nombre_places < reservation.nombre_personnes)
+            throw new Error('Places insuffisantes');
+
+          const visites = await tx.visite.update({
             where: { id_visite: reservation.id_visite },
             data: {
               nombre_places: {
@@ -143,16 +179,22 @@ export const PaiementCallbackService = async (transactionData) => {
               }
             }
           });
+
+          placesRestantes = visites.nombre_places;
         }
       }
     });
 
-    // Recharger la réservation avec le statut mis à jour
     const updatedReservation = await prisma.reservation.findUnique({
       where: { id_reservation: reservation.id_reservation }
     });
 
-    return { reservation: updatedReservation, paiement };
+    return {
+      reservation: updatedReservation,
+      paiement,
+      places_restantes: placesRestantes
+    };
+
   } catch (error) {
     console.error('Erreur callback paiement :', error);
     throw error;

@@ -42,12 +42,15 @@ export const PrestataireSchema = z.object({
 
   type: z.enum(["guide", "hotel", "transport"]),
   genre: z.enum(["Homme", "Femme","Personnel"]),
-  adresse: z.string().min(3, "Adresse trop courte"),
-  ville: z.string().min(2, "Ville trop courte"),
-  annee_experience: z.preprocess(val => Number(val), z.number().min(0, "Doit être ≥ 0")),
+  adresse: z.string(),
+  ville: z.string(),
+  annee_experience: z
+  .preprocess(val => val === undefined ? undefined : Number(val),
+    z.number().min(0, "Doit être ≥ 0")
+  ),
+
   document_justificatif: z.string().optional(),
   image: z.string().nullable().optional(),
-  statut_validation: z.enum(["en_attente", "valide", "refuse"])
 });
 
 /**
@@ -78,7 +81,16 @@ export const ClientSchema = z.object({
  * evenementSchema (validation de evenement)
  */
 export const evenementSchema = z.object({
-  id_hotel: z.string().uuid({ message: "L'ID hôtel doit être un UUID valide" }).nullable().optional(),
+  id_hotel: z.preprocess(
+  (val) => {
+    if (val === '' || val === 'null') return null;
+    return val;
+  },
+  z.string()
+    .uuid({ message: "L'ID hôtel doit être un UUID valide" })
+    .nullable()
+    .optional()
+),
   nom: z.string(),
   image: z.string().min(1, "L'image est requise"),
   description: z.string(),
@@ -99,11 +111,18 @@ export const evenementSchema = z.object({
 
   categorie: z.string().min(2, "La catégorie doit avoir au moins 2 caractères"),
 })
-.refine(data => data.date_fin > data.date_debut, {
-  message: "La date de fin doit être après la date de début",
-  path: ["date_fin"]
-})
-
+.superRefine((data, ctx) => {
+  // Ne valider la relation entre dates que si les deux dates sont présentes
+  if (data.date_debut && data.date_fin) {
+    if (data.date_fin <= data.date_debut) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "La date de fin doit être après la date de début",
+        path: ["date_fin"]
+      });
+    }
+  }
+});
 
 /**
  * visiteSchema (validation de visite)
@@ -111,7 +130,7 @@ export const evenementSchema = z.object({
 export const visiteSchema = z.object({
   id_guide: z.string().uuid({ message: "L'ID guide doit être un UUID valide" }),
   id_hotel: z.string().uuid({ message: "L'ID hôtel doit être un UUID valide" }).nullable().optional(),
-  id_transport: z.string().uuid({ message: "L'ID transport doit être un UUID valide" }).nullable().optional(),
+  id_transport: z.string().uuid({ message: "L'ID transport doit être un UUID valide" }),
 
   nom: z.string("Le nom est obligatoire"),
   image: z.string().nullable().optional(),
@@ -125,6 +144,9 @@ export const visiteSchema = z.object({
 
   date_debut: z.coerce.date({ message: "Date de début invalide" }),
   date_fin: z.coerce.date({ message: "Date de fin invalide" }),
+
+  lieu_date_depart: z.string({ message: "Le lieu de départ est obligatoire" }),
+  parcours: z.string().optional().nullable(),
 
   // Tableau d'IDs de sites touristiques (UUIDs)
   siteIds: z.union([

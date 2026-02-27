@@ -17,7 +17,9 @@ export const createVisiteService = async (data) => {
     id_hotel,
     id_transport,
     siteIds,
-    image
+    image,
+    lieu_date_depart,
+    parcours
   } = data;
 
   try {
@@ -66,7 +68,9 @@ export const createVisiteService = async (data) => {
         date_fin: new Date(date_fin),
         id_guide,
         id_hotel: id_hotel || null,
-        id_transport: id_transport || null,
+        id_transport: id_transport,
+        lieu_date_depart,
+        parcours: parcours || null,
         image: image || null,
         visiteSites: {
           create: siteIds.map(id_site => ({ site: { connect: { id_site } } }))
@@ -164,7 +168,9 @@ export const updateVisiteService = async (id_visite, data) => {
     id_hotel,
     id_transport,
     image,
-    siteIds
+    siteIds,
+    lieu_date_depart,
+    parcours
   } = data;
 
   const updateData = {};
@@ -181,6 +187,8 @@ export const updateVisiteService = async (id_visite, data) => {
   if (id_hotel !== undefined) updateData.id_hotel = id_hotel || null;
   if (id_transport !== undefined) updateData.id_transport = id_transport || null;
   if (image !== undefined) updateData.image = image || null;
+  if (lieu_date_depart !== undefined) updateData.lieu_date_depart = lieu_date_depart;
+  if (parcours !== undefined) updateData.parcours = parcours || null;
 
   if (Array.isArray(siteIds)) {
     updateData.visiteSites = {
@@ -201,27 +209,6 @@ export const updateVisiteService = async (id_visite, data) => {
   });
 };
 
-/**
- * Rechercher une visite par nom
- */
-export const searchVisiteService = async (nom) => {
-  return prisma.visite.findMany({
-    where: {
-      nom: {
-        contains: nom,
-        mode: "insensitive"
-      }
-    },
-    include: {
-      guide: true,
-      hotel: true,
-      transport: true,
-      visiteSites: {
-        include: { site: true }
-      }
-    }
-  });
-};
 
 /**
  * Vérifier si la visite existe déjà par nom, description, date et localisation

@@ -52,26 +52,6 @@ export const deleteEvenementService = async (id) => {
 };
 
 /**
- * Rechercher un événement
- */
-export const searchEvenementService = async (nom) => {
-  if (!nom || nom.trim() === '') {
-    throw new Error("Le nom de l'événement est requis pour la recherche");
-  }
-  const evenements = await prisma.evenement.findMany({
-    where: {
-      nom: {
-        contains: nom,
-        mode: 'insensitive' 
-      }
-    }
-  });
-  
-  return evenements;
-};
-
-
-/**
  * Vérifier si un événement existe déjà par nom, description, date et localisation
  */
 export const findEvenementExistService = async ({ nom, description, date_debut, localisation }, excludeId = null) => {

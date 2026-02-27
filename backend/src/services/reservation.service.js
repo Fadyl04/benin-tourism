@@ -22,6 +22,8 @@ export const createReservationService = async (data, id_user) => {
   }
 
   let montantTotal = 0;
+  let evenement = null;
+  let visite = null;
 
   // ----- Cas ÉVÉNEMENT -----
   if (id_evenement) {
@@ -81,7 +83,14 @@ export const createReservationService = async (data, id_user) => {
 
   return { 
     success: true, 
-    data: reservation, 
+    data: reservation,
+    details: {
+      nom: evenement?.nom || visite?.nom,
+      date: evenement?.date_debut || visite?.date_debut,
+      type: id_evenement ? "evenement" : "visite",
+      ticket: ticket_evenement || ticket_visite,
+      montant_ticket: montantTotal / nombre_personnes,
+    },
     message: "Réservation créée avec succès. En attente de paiement." 
   };
 };
@@ -94,7 +103,14 @@ export const createReservationService = async (data, id_user) => {
 export const getAllReservationsService = async () => {
   return await prisma.reservation.findMany({
     include: {
-      user: true,
+      user: {
+        select: {
+          nom: true,
+          prenom: true,
+          email: true,
+          role: true,
+        },
+      },
       evenement: true,
       visite: true,
       paiements: true,
@@ -108,16 +124,26 @@ export const getAllReservationsService = async () => {
 /**
  * Récupérer une réservation par ID
  */
-export const getReservationByIdService = async (id) => {
-    return await prisma.reservation.findUnique({
-      where: { id_reservation },
-      include: {
-        user: true,
-        evenement: true,
-        visite: true,
-        paiements: true,
+export const getReservationByIdService = async (id_reservation) => {
+  if (!id_reservation) {
+    throw new Error("ID réservation manquant");
+  }
+  return await prisma.reservation.findUnique({
+    where: { id_reservation },
+    include: {
+      user: {
+        select: {
+          nom: true,
+          prenom: true,
+          email: true,
+          role: true,
+        },
       },
-    });
+      evenement: true,
+      visite: true,
+      paiements: true,
+    },
+  });
 };
 
 /**

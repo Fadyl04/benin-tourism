@@ -65,6 +65,8 @@ model User {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  firstLogin     Boolean       @default(true)
+  
   reservations   Reservation[]
   paiements      Paiement[]
   prestataire    Prestataire?
@@ -98,7 +100,7 @@ model Prestataire {
   telephone            String
   annee_experience     Int
   document_justificatif String
-  firstLogin     Boolean       @default(true)
+  
   statut         StatutPrestataire        @default(inactif)
   statut_validation    StatutValidation
 
@@ -109,6 +111,8 @@ model Prestataire {
   guides               Visite[]    @relation("Guide")
   hotels               Visite[]    @relation("Hotel")
   transports           Visite[]    @relation("Transport")
+
+  evenements           Evenement[] @relation("Hotel")
 
   @@index([statut_validation])
   @@map("prestataires")
@@ -150,28 +154,32 @@ model Evenement {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
+  hotel           Prestataire?   @relation("Hotel", fields: [id_hotel], references: [id_prestataire])
+
   @@index([categorie])
   reservations   Reservation[]
   @@map("evenements")
 }
 
 model Visite {
-  id_visite       String   @id @default(uuid())
+  id_visite        String   @id @default(uuid())
   id_guide        String
   id_hotel        String?
   id_transport    String
 
-  nom             String
-  image           String?
-  description     String
-  prix_economique Decimal        @db.Decimal(10, 2)
-  prix_confort    Decimal        @db.Decimal(10, 2)
-  prix_premium    Decimal        @db.Decimal(10, 2)
-  nombre_places   Int
-  date_debut      DateTime
-  date_fin        DateTime
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  nom                  String
+  image                String?
+  description          String
+  prix_economique      Decimal        @db.Decimal(10, 2)
+  prix_confort         Decimal        @db.Decimal(10, 2)
+  prix_premium         Decimal        @db.Decimal(10, 2)
+  nombre_places        Int
+  date_debut           DateTime
+  date_fin             DateTime
+  lieu_date_depart     String        
+  parcours             String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   reservations    Reservation[]
   visiteSites     VisiteSite[]

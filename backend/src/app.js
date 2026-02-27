@@ -1,4 +1,7 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsDoc from 'swagger-jsdoc';
+
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
@@ -31,13 +34,43 @@ app.use(morgan('dev'));
 /*
   RATE LIMITING
 */
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 });
 
 app.use(limiter);
+
+/* =======================
+   SWAGGER DOCUMENTATION
+======================= */
+
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0', 
+    info: {
+      title: 'API Benin Tourism',
+      version: '1.0.0',
+      description: 'Documentation complète de l\'API',
+    },
+    servers: [
+      { url: `http://localhost:${process.env.PORT || 3000}/api` }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
+        }
+      }
+    }
+  },
+  apis: ['./src/routes/**/*.js'], // tous tes fichiers de routes
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 /* =======================
    FICHIERS STATIQUES

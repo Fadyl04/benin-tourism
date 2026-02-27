@@ -1,13 +1,13 @@
 import {
-    createVisiteService,
-    getAllVisiteService,
-    getVisiteByIdService,
-    searchVisiteService,
-    deleteVisiteService,
-    updateVisiteService,
-    findVisiteExistService
+  createVisiteService,
+  getAllVisiteService,
+  getVisiteByIdService,
+  deleteVisiteService,
+  updateVisiteService,
+  findVisiteExistService
 } from "../services/visite.service.js";
 import { visiteSchema } from "../utils/validators.js";
+import {checkPrestataireValidation, handlePrestataireError} from '../services/auth/auth.prestataire.service.js'; 
   
 /**
  * Créer une visite
@@ -21,7 +21,7 @@ export const createVisiteController = async (req, res) => {
       ...req.body, 
       image,
       id_hotel: req.body.id_hotel || null,
-      id_transport: req.body.id_transport || null 
+      id_transport: req.body.id_transport  
     };
 
     // Validation avec Zod
@@ -39,6 +39,33 @@ export const createVisiteController = async (req, res) => {
     }
 
     const data = visiteValid.data;
+
+    //console.log("Entrée dans createVisiteController");
+    // Vérification des prestataire APRÈS validation
+    // Le guide est OBLIGATOIRE
+    try {
+      await checkPrestataireValidation(data.id_guide, "guide");
+    } catch (error) {
+      return handlePrestataireError(error, res, "Guide");
+    }
+
+    // Vérification de l'hôtel s'il est fourni
+    if (data.id_hotel) {
+      try {
+        await checkPrestataireValidation(data.id_hotel, "hotel");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Hôtel");
+      }
+    }
+
+    // Vérification du transport s'il est fourni
+    if (data.id_transport) {
+      try {
+        await checkPrestataireValidation(data.id_transport, "transport");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Transport");
+      }
+    }
 
     // Vérification si la visite existe déjà
     const existingVisite = await findVisiteExistService({
@@ -59,8 +86,8 @@ export const createVisiteController = async (req, res) => {
       ...data, 
       id_guide: data.id_guide,
       id_hotel: data.id_hotel || null,
-      id_transport: data.id_transport || null,
-      siteIds: Array.isArray(data.siteIds) ? data.siteIds.map(Number) : []
+      id_transport: data.id_transport,
+      siteIds: Array.isArray(data.siteIds) ? data.siteIds : []
     });
 
     return res.status(201).json({
@@ -99,7 +126,8 @@ export const getVisiteByIdController = async (req, res) => {
   try {
     const { id_visite } = req.params;
     
-    if (!id_visite || isNaN(visiteId)) {
+    if (!id_visite || typeof id_visite !== 'string') {
+
       return res.status(400).json({
         success: false,
         message: "ID de visite invalide"
@@ -128,10 +156,10 @@ export const deleteVisiteController = async (req, res) => {
     try {
       const { id_visite } = req.params;
       
-      if (!id_visite) {
+      if (!id_visite || typeof id_visite !== 'string') {
         return res.status(400).json({ 
           success: false, 
-          message: "ID d'événement invalide" 
+          message: "ID de visite invalide" 
         });
       }
       const deleted =  await deleteVisiteService(id_visite);
@@ -147,7 +175,7 @@ export const deleteVisiteController = async (req, res) => {
       res.status(500).json({ success: false, message: "Erreur serveur lors de la suppression", error: process.env.NODE_ENV === 'development' ? error.message : undefined });
     }
 };
-  
+
 /**
  * Mettre à jour une visite
  */
@@ -166,30 +194,105 @@ export const updateVisiteController = async (req, res) => {
 
     const payload = { ...req.body, image };
 
+    // CONVERSION DES CHAMPS NUMÉRIQUES
+    const numericFields = ['prix_economique', 'prix_confort', 'prix_premium', 'nombre_places'];
+    numericFields.forEach(field => {
+      if (payload[field] !== undefined && payload[field] !== '') {
+        // Convertir en nombre
+        payload[field] = Number(payload[field]);
+        // Vérifier si la conversion a réussi
+        if (isNaN(payload[field])) {
+          return res.status(400).json({
+            success: false,
+            message: `Le champ ${field} doit être un nombre valide`
+          });
+        }
+      }
+    });
+
     // Conversion siteIds si string JSON
     if (typeof payload.siteIds === "string") {
       try {
         payload.siteIds = JSON.parse(payload.siteIds);
       } catch {
-        payload.siteIds = payload.siteIds.split(",");
+        payload.siteIds = payload.siteIds.split(",").map(id => id.trim());
       }
     }
 
-    const parsed = visiteSchema.partial().safeParse(payload);
-
+    // Valider avec le schéma complet
+    const parsed = visiteSchema.safeParse(payload);
+    
     if (!parsed.success) {
-      return res.status(400).json({
-        success: false,
-        message: "Validation échouée",
-        errors: parsed.error.issues.map(issue => ({
-          field: issue.path.join('.'),
-          message: issue.message
-        }))
+      // Extraire les champs présents
+      const presentFields = Object.keys(payload).filter(key => 
+        payload[key] !== undefined && payload[key] !== null
+      );
+      
+      // Filtrer les erreurs pertinentes
+      const relevantErrors = parsed.error.issues.filter(issue => {
+        // Ignorer les erreurs de type 'undefined' pour les champs requis
+        if (issue.code === 'invalid_type' && issue.received === 'undefined') {
+          return false;
+        }
+        // Pour la validation des dates
+        if (issue.path[0] === 'date_fin' && issue.code === 'custom') {
+          return payload.date_debut && payload.date_fin;
+        }
+        // Pour les autres erreurs
+        return presentFields.includes(issue.path[0]);
       });
+
+      if (relevantErrors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Validation échouée",
+          errors: relevantErrors.map(issue => ({
+            field: issue.path.join('.'),
+            message: issue.message
+          }))
+        });
+      }
     }
 
-    const visiteData = parsed.data;
+    // Utiliser les données du payload avec les valeurs converties
+    const visiteData = { ...payload };
 
+    // Validation manuelle des dates
+    if (visiteData.date_debut && visiteData.date_fin) {
+      if (new Date(visiteData.date_fin) <= new Date(visiteData.date_debut)) {
+        return res.status(400).json({
+          success: false,
+          message: "La date de fin doit être après la date de début"
+        });
+      }
+    }
+
+    // Vérification des prestataires
+    if (visiteData.id_guide) {
+      try {
+        await checkPrestataireValidation(visiteData.id_guide, "guide");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Guide");
+      }
+    }
+
+    if (visiteData.id_hotel) {
+      try {
+        await checkPrestataireValidation(visiteData.id_hotel, "hotel");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Hôtel");
+      }
+    }
+
+    if (visiteData.id_transport) {
+      try {
+        await checkPrestataireValidation(visiteData.id_transport, "transport");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Transport");
+      }
+    }
+
+    // Vérification des doublons
     if (visiteData.nom && visiteData.description && visiteData.date_debut) {
       const existing = await findVisiteExistService(
         {
@@ -235,25 +338,7 @@ export const updateVisiteController = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || "Erreur serveur lors de la mise à jour"
     });
   }
-};
-
-/**
- * Rechercher une visite par nom
- */
-export const searchVisiteController = async (req, res) => {
-    try {
-      const { nom } = req.query;
-  
-        if (!nom || typeof nom !== "string" || nom.trim() === "") {
-        return res.status(400).json({
-          success: false,message: "Veuillez fournir un nom à rechercher"});
-        }
-      const visites = await searchVisiteService(nom);
-        res.status(200).json({success: true,results: visites.length,data: visites});
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
 };

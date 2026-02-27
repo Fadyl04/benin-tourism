@@ -4,7 +4,6 @@ import {
   getSiteByIdService,
   updateSiteService,
   deleteSiteService,
-  searchSiteService, 
   findSiteExistService
 } from '../services/siteTouristique.service.js';
 import { siteTouristiqueSchema } from '../utils/validators.js';
@@ -185,34 +184,3 @@ export const deleteSiteController = async (req, res) => {
   }
 };
 
-
-/**
- * Rechercher un site tousistique
- */
-export const searchSiteController = async (req, res) => {
-  try {
-    const { name } = req.query;
-
-    if (!name || name.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        message: 'Veuillez fournir un nom à rechercher'
-      });
-    }
-
-    // Utiliser bien la variable "name" et non "nom"
-    const sites = await searchSiteService(name);
-
-    res.status(200).json({
-      success: true,
-      results: sites.length,
-      data: sites
-    });
-  } catch (error) {
-    console.error("Erreur de recherche d'un site touristique :", error);
-    res.status(500).json({
-      success: false,
-      message: 'Erreur serveur : ' + error.message
-    });
-  }
-};

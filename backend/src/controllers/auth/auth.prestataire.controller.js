@@ -1,4 +1,5 @@
 import { date, success } from 'zod';
+import prisma from '../../config/db.config.js';
 import {
   registerPrestataireService,
   loginPrestataireService,
@@ -104,7 +105,7 @@ export const loginPrestataireController = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: "Validation échouée",
-          errors: [{mesaage: "Erreur de validation"}]
+          errors: [{ mesaage: "Erreur de validation" }]
         });
       }
     }
@@ -132,7 +133,7 @@ export const changePasswordPrestataireController = async (req, res) => {
       });
     }
     
-    const { newPassword } = req.body;
+    const { newPassword } = parsed.data;
 
     await changePasswordService({ id_user, newPassword });
     return res.status(200).json({
@@ -150,16 +151,15 @@ export const changePasswordPrestataireController = async (req, res) => {
 export const deletePrestataireController = async (req, res) => {
   try {
     const { id } = req.params;
-    const prestataireId = Number(id);
 
-    if (!id || isNaN(prestataireId)) {
+    if (!id) {
       return res.status(400).json({
         success: false,
         message: "Identifiant de prestataire invalide."
       });
     }
 
-    const deleted = await deletePrestataireService(prestataireId);
+    const deleted = await deletePrestataireService(id);
 
     return res.status(200).json({
       success: true,
@@ -184,15 +184,13 @@ export const deletePrestataireController = async (req, res) => {
   }
 }
 
-/**
- * update d’un prestataire
- */
+
 /**
  * Mise à jour d'un prestataire
  */
 export const updatePrestataireController = async (req, res) => {
   try {
-    const prestataireId = Number(req.params.id);
+    const prestataireId = req.params.id;
     if (!prestataireId) {
       return res.status(400).json({
         success: false,

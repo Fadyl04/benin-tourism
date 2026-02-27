@@ -106,16 +106,73 @@ export const paiementCallbackController = async (req, res) => {
       methode
     };
 
-    const { reservation, paiement: updatedPaiement } = await PaiementCallbackService(transactionData);
+    // Récupérer aussi places_restantes depuis le service
+    const { reservation, paiement: updatedPaiement, places_restantes } = await PaiementCallbackService(transactionData);
 
+    // Récupérer les infos complémentaires pour la réponse
+    let evenement = null;
+    let visite = null;
+    
+    if (reservation.id_evenement) {
+      evenement = await prisma.evenement.findUnique({
+        where: { id_evenement: reservation.id_evenement },
+        select: { 
+          nom: true, 
+          nombre_place: true,
+          date_debut: true
+        }
+      });
+    }
+    
+    if (reservation.id_visite) {
+      visite = await prisma.visite.findUnique({
+        where: { id_visite: reservation.id_visite },
+        select: { 
+          nom: true, 
+          nombre_places: true,
+          date_debut: true,
+          lieu_date_depart: true
+        }
+      });
+    }
+
+    // Retourner une réponse enrichie
     return res.status(200).json({
       success: true,
       message: 'Paiement traité avec succès',
-      data: { reservation, paiement: updatedPaiement }
+      data: { 
+        reservation: {
+          id: reservation.id_reservation,
+          statut: reservation.statut,
+          montant: reservation.montant,
+          nombre_personnes: reservation.nombre_personnes,
+          date_reservation: reservation.date_reservation
+        },
+        paiement: {
+          id: updatedPaiement.id_paiement,
+          statut: updatedPaiement.statut,
+          montant: updatedPaiement.montant,
+          methode: updatedPaiement.methode,
+          transaction: updatedPaiement.transaction,
+          date_paiement: updatedPaiement.date_paiement
+        },
+        // NOUVEAU : places restantes
+        places_restantes: places_restantes || evenement?.nombre_place || visite?.nombre_places,
+        // Infos détaillées
+        details: {
+          type: evenement ? 'evenement' : 'visite',
+          nom: evenement?.nom || visite?.nom,
+          date: evenement?.date_debut || visite?.date_debut,
+          places_disponibles: evenement?.nombre_place || visite?.nombre_places
+        }
+      }
     });
 
   } catch (error) {
-    console.error('Erreur paiementCallbackController :', error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error('❌ Erreur paiementCallbackController :', error);
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Erreur lors du traitement du paiement' 
+    });
   }
 };

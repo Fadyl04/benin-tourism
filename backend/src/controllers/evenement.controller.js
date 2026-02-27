@@ -4,31 +4,28 @@ import {
   getEvenementByIdService,
   updateEvenementService,
   deleteEvenementService,
-  searchEvenementService,
   findEvenementExistService
 
 } from '../services/evenement.service.js';
 import { evenementSchema } from '../utils/validators.js';
+import {checkPrestataireValidation, handlePrestataireError} from '../services/auth/auth.prestataire.service.js';
 
 /**
  * Création d'un evenement
  */
 export const createEvenementController = async (req, res) => {
   try {
-    /* console.log('Données reçues:', req.body); */ // Debug
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    // Prétraitement des données
+    // Prétraitement
     const processedData = { ...req.body };
-    
-    // Gestion spécifique de prix_elite
+
     if (processedData.prix_elite === '' || processedData.prix_elite === 'null') {
       processedData.prix_elite = null;
-    } else if (processedData.prix_elite) {
+    } else if (processedData.prix_elite !== undefined) {
       processedData.prix_elite = Number(processedData.prix_elite);
     }
 
-    // Conversion des autres champs numériques
     const numericFields = ['nombre_place', 'prix_standard', 'prix_vip', 'prix_premium'];
     numericFields.forEach(field => {
       if (processedData[field] !== undefined && processedData[field] !== '') {
@@ -36,32 +33,35 @@ export const createEvenementController = async (req, res) => {
       }
     });
 
-    /* console.log('Données traitées:', processedData); */
-
-    // Validation des données
-    const parsedData = evenementSchema.safeParse({ 
-      ...processedData, 
-      image: imagePath 
+    // Validation Zod
+    const parsedData = evenementSchema.safeParse({
+      ...processedData,
+      image: imagePath
     });
-    
-    if (!parsedData.success) {
-      const errorMessages = parsedData.error.issues.map(issue => ({
-        field: issue.path.join('.'),
-        message: issue.message,
-        value: issue.received
-      }));
 
+    if (!parsedData.success) {
       return res.status(400).json({
         success: false,
         message: "Validation échouée",
-        errors: errorMessages
+        errors: parsedData.error.issues.map(issue => ({
+          field: issue.path.join('.'),
+          message: issue.message
+        }))
       });
     }
 
     const data = parsedData.data;
-    console.log('Données validées:', data);
+    //console.log("Entrée dans createEvenementController");
+    // Vérification du prestataire APRÈS validation
+    if (data.id_hotel) {
+      try {
+        await checkPrestataireValidation(data.id_hotel, "hotel");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Hôtel");
+      }
+    }
 
-    // Vérification de l'existence de l'événement
+    // Vérification doublon
     const existingEvent = await findEvenementExistService({
       nom: data.nom,
       description: data.description,
@@ -76,7 +76,6 @@ export const createEvenementController = async (req, res) => {
       });
     }
 
-    // Création de l'événement
     const evenement = await createEvenementService(data);
 
     return res.status(201).json({
@@ -86,13 +85,15 @@ export const createEvenementController = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error de createEvenementController:', error);
+    console.error('Erreur createEvenementController:', error);
+
     return res.status(500).json({
       success: false,
-      message: error.message || "Erreur serveur lors de la création de l'événement"
+      message: error.message || "Erreur serveur"
     });
   }
 };
+
 
 
 /**
@@ -135,10 +136,10 @@ export const getEvenementByIdController = async (req, res) => {
  */
 export const updateEvenementController = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const id = req.params.id;
     /* console.log('ID de l\'événement à mettre à jour:', id); */
     
-    if (isNaN(id)) {
+    if (!id || typeof id !== "string") {
       return res.status(400).json({ 
         success: false, 
         message: "Identifiant d'événement invalide." 
@@ -163,23 +164,44 @@ export const updateEvenementController = async (req, res) => {
     });
 
     // Validation des données avec Zod
-    const parsed = evenementSchema.partial().safeParse(updatedData);
-    if (!parsed.success) {
-      const errorMessages = parsed.error.issues.map(issue => ({
-        field: issue.path.join('.'),
-        message: issue.message,
-        value: issue.received
-      }));
-
+    const validationResult = evenementSchema.safeParse(updatedData);
+    if (!validationResult.success) {
+      const presentFields = Object.keys(updatedData).filter(key => updatedData[key] !== undefined);
+      const errors = validationResult.error.issues.filter(issue => 
+        presentFields.includes(issue.path[0])
+      );
+      if (errors.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Validation échouée",
+          errors: errors.map(issue => ({
+            field: issue.path.join('.'),
+            message: issue.message
+          }))
+        });
+      }
       return res.status(400).json({
         success: false,
         message: "Validation échouée",
-        errors: errorMessages
+        errors: validationResult.error.issues.map(issue => ({
+          field: issue.path.join('.'),
+          message: issue.message
+        }))
       });
     }
 
-    const data = parsed.data;
+    const data = validationResult.data || {};
     /* console.log('Données validées:', data); */
+
+    //console.log("Entrée dans updateEvenementController");
+    // Vérification du prestataire APRÈS validation
+    if (data.id_hotel) {
+      try {
+        await checkPrestataireValidation(data.id_hotel, "hotel");
+      } catch (error) {
+        return handlePrestataireError(error, res, "Hôtel");
+      }
+    }
 
     // Vérifier si les nouvelles données existent DÉJÀ pour un AUTRE événement
     if (data.nom && data.description && data.date_debut && data.localisation) {
@@ -241,60 +263,47 @@ export const updateEvenementController = async (req, res) => {
 export const deleteEvenementController = async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Validation de l'ID
-    const eventId = Number(id);
-    if (isNaN(eventId)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "ID d'événement invalide" 
+
+    // ✅ Validation UUID (String)
+    if (!id || typeof id !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "ID d'événement invalide"
       });
     }
 
-    // Appel du service
-    const result = await deleteEvenementService(eventId);
+    // Appel du service avec UUID string
+    const result = await deleteEvenementService(id);
 
+    // Vérifier si l'événement a bien été trouvé et supprimé
     if (!result) {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Événement non trouvé" 
+      return res.status(404).json({
+        success: false,
+        message: "L'événement n'existe pas."
       });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: 'Événement supprimé avec succès',
-      data: result 
+    // Retourner la réponse de succès UNIQUEMENT si tout s'est bien passé
+    return res.status(200).json({
+      success: true,
+      message: "Événement supprimé avec succès",
     });
 
   } catch (error) {
-    console.error('Error in deleteEvenementController:', error);
-    
-    // Gestion spécifique des erreurs Prisma
-    if (error.code === 'P2025') {
-      return res.status(404).json({ 
-        success: false, 
-        message: "Événement non trouvé" 
+    console.error("Error in deleteEvenementController:", error);
+
+    // Prisma: record not found
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "Événement non trouvé"
       });
     }
 
-    res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: "Erreur serveur lors de la suppression",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined
     });
-  }
-};
-
-/**
- * Rechercher un événement
- */
-export const searchEvenementController = async (req, res) => {
-  try {
-    const { nom } = req.query;
-    const resultats = await searchEvenementService(nom);
-    res.status(200).json(resultats);
-  } catch (error) {
-    res.status(400).json({ message: error.message || 'Erreur lors de la recherche' });
   }
 };

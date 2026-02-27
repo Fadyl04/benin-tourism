@@ -54,7 +54,6 @@ export const registerPrestataireService = async (data) => {
         email: email.toLowerCase().trim(),
         password: hashedPassword,
         role: 'prestataire',
-        statut: 'en_attente',
         firstLogin: true,
         prestataire: {
           create: {
@@ -68,8 +67,7 @@ export const registerPrestataireService = async (data) => {
             document_justificatif: document_justificatif || null,
             statut_validation: 'en_attente',
             image: image || null,
-            statut: 'inactif',
-            firstLogin: true
+            statut: 'inactif'
           }
         }
       },
@@ -115,15 +113,25 @@ export const registerPrestataireService = async (data) => {
  * Connexion prestataire
  */
 export const loginPrestataireService = async ({ email, password }) => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { prestataire: true } 
+  });
   if (!user || user.role !== 'prestataire') throw new Error('Prestataire introuvable');
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new Error('Mot de passe incorrect');
 
-  if (user.statut !== 'actif') throw new Error('Compte non activé par l\'administrateur');
+  // Vérification validation admin
+  if (!user.prestataire || user.prestataire.statut_validation !== 'valide') {
+    throw new Error("Compte non validé par l'administrateur");
+  }
 
-  const token = generateToken(user);
+  const token = generateToken({
+    id_user: user.id_user,
+    role: user.role,
+    firstLogin: user.firstLogin
+  });
 
   return {
     token,
@@ -133,7 +141,7 @@ export const loginPrestataireService = async ({ email, password }) => {
       prenom: user.prenom,
       email: user.email,
       role: user.role,
-      firstLogin: user.prestataire.firstLogin
+      firstLogin: user.firstLogin
     }
   };
 };
@@ -166,10 +174,14 @@ export const validerPrestataireService = async (user) => {
     where: { id_user: user.id_user },
     data: {
       password: hashedPassword,
-      statut: 'actif',
       firstLogin: true,
-      prestataire: { update: { statut_validation: 'valide' } }
-    }
+      prestataire: {
+        update: {
+          statut_validation: 'valide',
+          statut: 'inactif'
+        } 
+      }
+    }   
   });
 
   await validerPrestataireMail(user.email, user.nom, user.prenom, password);
@@ -184,8 +196,12 @@ export const refuserPrestataireService = async (user, raison) => {
   await prisma.user.update({
     where: { id_user: user.id_user },
     data: {
-      statut: 'refuse',
-      prestataire: { update: { statut_validation: 'refuse' } }
+      prestataire: { 
+        update: {
+         statut_validation: 'refuse',
+          statut: 'refuse'
+        } 
+      }
     }
   });
 
@@ -201,8 +217,7 @@ export const entretienPrestataireService = async (user, dateEntretien, heureEntr
   await prisma.user.update({
     where: { id_user: user.id_user },
     data: {
-      statut: 'en_attente_entretien',
-      prestataire: { update: { statut_validation: 'en_attente_entretien' } }
+      prestataire: { update: { statut_validation: 'en_attente' } }
     }
   });
 
@@ -267,10 +282,56 @@ export const updatePrestataireService = async (id, data) => {
  */
 export const showInfoPrestataireService = async (id_user) => {
   const prestataire = await prisma.prestataire.findFirst({
-    where: { id_user },
+    where: { idUser: id_user },
     include: { user: true }
   });
 
   if (!prestataire) throw new Error("Prestataire introuvable");
   return prestataire;
 }
+
+export const checkPrestataireValidation = async (id, expectedType = null) => {
+  const prestataire = await prisma.prestataire.findUnique({
+    where: { id_prestataire: id },
+    select: {
+      id_prestataire: true,
+      type: true,
+      statut_validation: true  // Notez le underscore
+    }
+  });
+
+  /* console.log("Prestataire trouvé:", prestataire);
+  console.log("statut_validation:", prestataire?.statut_validation); */
+  
+  if (!prestataire) {
+    throw new Error("PRESTATAIRE_NOT_FOUND");
+  }
+
+  if (expectedType && prestataire.type !== expectedType) {
+    throw new Error("PRESTATAIRE_INVALID_TYPE");
+  }
+
+  // Comparaison avec la valeur de l'enum
+  if (prestataire.statut_validation !== 'valide') {
+    throw new Error("PRESTATAIRE_NOT_VALIDATED");
+  }
+
+  return prestataire;
+};
+
+export const handlePrestataireError = (error, res, label = "Prestataire") => {
+  const messages = {
+    PRESTATAIRE_NOT_FOUND: `${label} non trouvé`,
+    PRESTATAIRE_INVALID_TYPE: `Le prestataire n'est pas un ${label.toLowerCase()}`,
+    PRESTATAIRE_NOT_VALIDATED_GUIDE: `${label} non validé`,
+    PRESTATAIRE_NOT_VALIDATED_HOTEL: `${label} non validé`,
+    PRESTATAIRE_NOT_VALIDATED_TRANSPORT: `${label} non validé`,
+    PRESTATAIRE_PENDING: `${label} en attente de validation`,
+    PRESTATAIRE_REJECTED: `${label} a été refusé`
+  };
+
+  return res.status(400).json({
+    success: false,
+    message: messages[error.message] || "Erreur liée aux prestatairex (Seul les prestataires dont le statut_validation est 'validé' peuvent etre associés à une visite ou un événement)"
+  });
+};

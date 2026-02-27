@@ -33,8 +33,8 @@ export const getSiteByIdService = async (id) => {
  */
 export const updateSiteService = async (id, data) => {
     return await prisma.siteTouristique.update({
-        where: { id_site: id },
-        data
+      where: { id_site: id },
+      data
     });
 };
   
@@ -59,19 +59,6 @@ export const deleteSiteService = async (id) => {
   }
 };
 
-/**
- * Rechercher un événement
- */
-export const searchSiteService = async (nom) => {
-    return await prisma.siteTouristique.findMany({
-        where: {
-          nom: {
-            contains: nom,
-            mode: 'insensitive' 
-          }
-        }
-    });
-};
 
 /**
  * Vérifier si un site touristique existe déjà par nom, description, date et localisation

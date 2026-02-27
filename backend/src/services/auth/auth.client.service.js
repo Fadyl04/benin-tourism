@@ -18,6 +18,7 @@ export const registerClientService = async ({ nom, prenom, email, password }) =>
       email,
       password: hashedPassword,
       role: 'client',
+      firstLogin: false
     }
   });
 };
@@ -26,16 +27,21 @@ export const registerClientService = async ({ nom, prenom, email, password }) =>
  * Le login
  */
 export const loginClientService = async ({ email, password }) => {
-  const user = await prisma.user.findFirst({
+  const user = await prisma.user.findUnique({
     where: { email, role: 'client' }
   });
 
-  if (!user) throw new Error('Utilisateur introuvable');
+  if (!user || user.role !== 'client') {
+    throw new Error('Utilisateur introuvable');
+  }
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) throw new Error('Mot de passe incorrect');
 
-  const token = generateToken(user);
+  const token = generateToken({
+    id_user: user.id_user,
+    role: user.role
+  });
 
   return {
     token,
