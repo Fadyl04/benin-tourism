@@ -69,8 +69,8 @@ export const payReservationController = async (req, res) => {
  */
 export const paiementCallbackController = async (req, res) => {
   try {
-    console.log("CALLBACK QUERY:", req.query);
-    console.log("CALLBACK BODY:", req.body);
+    /* console.log("CALLBACK QUERY:", req.query);
+    console.log("CALLBACK BODY:", req.body); */
 
     // On prend les données depuis body ou query
     const payload = Object.keys(req.body || {}).length > 0 ? req.body : req.query;
