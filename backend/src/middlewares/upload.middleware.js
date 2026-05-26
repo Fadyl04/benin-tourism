@@ -2,60 +2,172 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadDir = 'uploads';
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
-    cb(null, uniqueName);
-  }
-});
-
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /pdf|jpg|jpeg|png/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Seuls les fichiers PDF, JPG, JPEG, PNG sont autorisés'), false);
-  }
+/**
+ * Création automatique des dossiers
+ */
+const ensureDir = (dirPath) => {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
 };
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // max 50MB
-  fileFilter
-});
+/**
+ * Factory upload middleware
+ */
+export const createUploadMiddleware = (folder) => {
 
-// Middleware de gestion d'erreurs
-export const uploadError = (err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: 'Fichier trop volumineux (max 50MB)'
-      });
-    }
-    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({
-        success: false,
-        message: 'Nombre de fichiers incorrect'
-      });
-    }
-  }
+    const uploadPath = path.join('uploads', folder);
 
-  if (err) {
-    return res.status(400).json({
-      success: false,
-      message: err.message
+    ensureDir(uploadPath);
+
+    const storage = multer.diskStorage({
+
+        destination: (req, file, cb) => {
+            cb(null, uploadPath);
+        },
+
+        filename: (req, file, cb) => {
+
+            const uniqueName =
+                Date.now() +
+                '-' +
+                Math.round(Math.random() * 1e9) +
+                path.extname(file.originalname);
+
+            cb(null, uniqueName);
+        }
     });
-  }
 
-  next();
+    const fileFilter = (req, file, cb) => {
+
+        const allowedTypes = /jpg|jpeg|png|webp|pdf/;
+
+        const extname = allowedTypes.test(
+            path.extname(file.originalname).toLowerCase()
+        );
+
+        const mimetype =
+            file.mimetype.startsWith('image/') ||
+            file.mimetype === 'application/pdf';
+
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(
+                new Error(
+                    'Formats autorisés : JPG, JPEG, PNG, WEBP, PDF'
+                ),
+                false
+            );
+        }
+    };
+
+    return multer({
+        storage,
+        limits: {
+            fileSize: 50 * 1024 * 1024
+        },
+        fileFilter
+    });
 };
 
-export { upload };
+/**
+ * Upload spécialisé PRESTATAIRE
+ */
+export const uploadPrestataire = multer({
+
+    storage: multer.diskStorage({
+
+        destination: (req, file, cb) => {
+
+            /**
+             * IMAGE PROFIL
+             */
+            if (file.fieldname === 'image') {
+
+                const type = req.body.type;
+
+                let folder =
+                    'uploads/users/prestataires';
+
+                if (type === 'guide') {
+                    folder += '/guides';
+                }
+
+                else if (type === 'hotel') {
+                    folder += '/hotels';
+                }
+
+                else if (type === 'transport') {
+                    folder += '/transports';
+                }
+
+                ensureDir(folder);
+
+                return cb(null, folder);
+            }
+
+            /**
+             * DOCUMENT JUSTIFICATIF
+             */
+            if (
+                file.fieldname ===
+                'document_justificatif'
+            ) {
+
+                const folder =
+                    'uploads/documents/prestataires';
+
+                ensureDir(folder);
+
+                return cb(null, folder);
+            }
+
+            return cb(
+                new Error('Champ fichier invalide')
+            );
+        },
+
+        filename: (req, file, cb) => {
+
+            const uniqueName =
+                Date.now() +
+                '-' +
+                Math.round(Math.random() * 1e9) +
+                path.extname(file.originalname);
+
+            cb(null, uniqueName);
+        }
+    }),
+
+    limits: {
+        fileSize: 50 * 1024 * 1024
+    },
+
+    fileFilter: (req, file, cb) => {
+
+        const allowedTypes =
+            /jpg|jpeg|png|webp|pdf/;
+
+        const extname = allowedTypes.test(
+            path.extname(file.originalname)
+                .toLowerCase()
+        );
+
+        const mimetype =
+            file.mimetype.startsWith('image/') ||
+            file.mimetype ===
+            'application/pdf';
+
+        if (extname && mimetype) {
+            cb(null, true);
+        } else {
+            cb(
+                new Error(
+                    'Formats autorisés : JPG, JPEG, PNG, WEBP, PDF'
+                ),
+                false
+            );
+        }
+    }
+});

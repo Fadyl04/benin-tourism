@@ -17,41 +17,47 @@ import {
   getGlobalStatsService
 
 } from '../../services/auth/auth.admin.service.js';
-import { logoutService } from '../../services/auth/logout.service.js';
+import { logoutUserController } from './auth.controller.js';
 import { loginSchema } from '../../utils/validators.js';
-
+import { getCookieOptions, COOKIE_DURATIONS } from '../../config/cookie.config.js';
 
 /**
- * Login
+ * Login Admin
  */
 export const loginAdminController = async (req, res) => {
   try {
     const login = loginSchema.safeParse(req.body);
     
     if (!login.success) {
-      // Gestion robuste des erreurs Zod
-      const validationErrors = login.error?.issues || login.error?.errors || [];
-
       return res.status(400).json({
         success: false,
         message: "Echec de validation",
-        errors: validationErrors.length
-          ? validationErrors.map(err => ({
-              field: err.path?.join ? err.path.join(".") : err.path,
-              message: err.message,
-            }))
-          : ["Erreur de validation"],
+        errors: login.error.issues.map(err => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
       });
     }
 
     const { email, password } = login.data;
     const result = await loginAdminService({ email, password });
 
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    // 2. Envoi du token en cookie (30 min)
+    res.cookie(
+      'accessToken', 
+      result.token, 
+      getCookieOptions(COOKIE_DURATIONS.ADMIN_SESSION)
+    );
+
+    // 3. Réponse finale
     return res.status(200).json({
       success: true,
-      token: result.token,
-      user: result.user,
       message: "Connexion admin réussie",
+      user: result.user,
     });
   } catch (error) {
     return res.status(401).json({
@@ -61,14 +67,21 @@ export const loginAdminController = async (req, res) => {
   }
 };
 
-
 /**
- * Logout
+ * Logout Admin
  */
 export const logoutAdminController = async (req, res) => {
   try {
-    const result = await logoutService(req.user); 
-    return res.status(200).json(result);
+    if (req.user) await logoutService(req.user); 
+    
+    // On nettoie le cookie en utilisant les options de base (path, sameSite)
+    // pour garantir que le navigateur identifie bien le cookie à supprimer
+    res.clearCookie('accessToken', getCookieOptions());
+
+    return res.status(200).json({ 
+        success: true, 
+        message: "Déconnexion admin réussie" 
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,

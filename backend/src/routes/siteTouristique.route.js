@@ -6,10 +6,12 @@ import {
     updateSiteController,
     deleteSiteController,
 } from '../controllers/siteTouristique.controller.js';
-import { upload } from '../middlewares/upload.middleware.js';
-import { authenticate,adminRole } from '../middlewares/auth.middlewares.js';
+import { createUploadMiddleware } from '../middlewares/upload.middleware.js';
+import { authenticate, authorize} from '../middlewares/auth.middlewares.js';
+import { can } from '../middlewares/can.middleware.js';
 
 const router = Router();
+const uploadSite = createUploadMiddleware('sites');
 
 /**
  * @swagger
@@ -87,7 +89,7 @@ const router = Router();
  *       201:
  *         description: Site créé avec succès
  */
-router.post('/create', adminRole, upload.single('image'), createSiteController);
+router.post('/create', authenticate, can('create', 'Site'), uploadSite.single('image'), createSiteController);
 
 
 /**
@@ -130,7 +132,7 @@ router.post('/create', adminRole, upload.single('image'), createSiteController);
  *       404:
  *         description: Site non trouvé
  */
-router.put('/update/:id', adminRole, upload.single('image'), updateSiteController);
+router.put('/update/:id', authenticate, can('update', 'Site'), uploadSite.single('image'), updateSiteController);
 
 /**
  * @swagger
@@ -153,7 +155,7 @@ router.put('/update/:id', adminRole, upload.single('image'), updateSiteControlle
  *       404:
  *         description: Site non trouvé
  */
-router.delete('/delete/:id', adminRole, deleteSiteController);
+router.delete('/delete/:id', authenticate, can('delete', 'Site'), deleteSiteController);
 
 /**
  * @swagger

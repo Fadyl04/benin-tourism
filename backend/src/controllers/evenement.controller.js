@@ -43,7 +43,7 @@ export const createEvenementController = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Validation échouée",
-        errors: parsedData.error.issues.map(issue => ({
+        errors: parsedData.error.issues.map(issue   => ({
           field: issue.path.join('.'),
           message: issue.message
         }))

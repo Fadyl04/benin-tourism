@@ -1,0 +1,314 @@
+/* ================================================
+   AUTH COMPONENT — UI FORM ONLY
+   (Dialog styles dans styles.css)
+   ================================================ */
+
+/* ── Header contenu ── */
+.dialog-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.dialog-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.dialog-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+/* ================================================
+   FORM
+   ================================================ */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4a6a8a;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ================================================
+   INPUT
+   ================================================ */
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrap > i:first-child {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--brand-primary);
+  font-size: 0.85rem;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 0.72rem 2.6rem 0.72rem 2.4rem;
+  border: 1px solid rgba(10, 55, 100, 0.14);
+  border-radius: 7px;
+  font-size: 0.87rem;
+  color: #1a1a1a;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input-wrap input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.input-wrap input::placeholder {
+  color: rgba(10, 55, 100, 0.22);
+}
+
+.input-wrap input.input-error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.07);
+}
+
+/* ================================================
+   PASSWORD TOGGLE
+   ================================================ */
+
+.toggle-pwd {
+  position: absolute;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--brand-primary);
+  opacity: 0.35;
+  font-size: 0.85rem;
+  transition: opacity 0.2s ease;
+}
+
+.toggle-pwd:hover {
+  opacity: 0.75;
+}
+
+/* ================================================
+   OPTIONS (REMEMBER / FORGOT)
+   ================================================ */
+
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Checkbox container */
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #4a6a8a;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.remember-me:hover {
+  color: var(--brand-primary);
+}
+
+/* PrimeNG checkbox (simplifié et stable) */
+.remember-me ::ng-deep .p-checkbox-box {
+  border-radius: 4px;
+  border: 1.5px solid rgba(10, 55, 100, 0.35);
+  background: #ffffff;
+  transition: all 0.2s;
+}
+
+.remember-me ::ng-deep .p-checkbox-box.p-highlight {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.remember-me ::ng-deep .p-checkbox-icon {
+  color: #ffffff;
+}
+
+/* label text */
+.remember-me span {
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+/* forgot link */
+.forgot-link {
+  font-size: 0.76rem;
+  color: var(--brand-primary);
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(10, 55, 100, 0.2);
+  transition: all 0.2s;
+}
+
+.forgot-link:hover {
+  color: var(--brand-tertiary);
+  border-color: var(--brand-tertiary);
+}
+
+/* ================================================
+   PASSWORD STRENGTH
+   ================================================ */
+
+.pwd-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.strength-bar {
+  height: 3px;
+  border-radius: 2px;
+  flex: 1;
+  background: rgba(10, 55, 100, 0.08);
+  overflow: hidden;
+  position: relative;
+}
+
+.strength-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transition: width 0.3s ease;
+}
+
+.strength-bar.strength-weak::after {
+  width: 33%;
+  background: #e74c3c;
+}
+
+.strength-bar.strength-medium::after {
+  width: 66%;
+  background: var(--brand-tertiary);
+}
+
+.strength-bar.strength-strong::after {
+  width: 100%;
+  background: #27ae60;
+}
+
+.strength-label {
+  font-size: 0.67rem;
+  color: #9a9a9a;
+  white-space: nowrap;
+}
+
+/* ================================================
+   ERRORS
+   ================================================ */
+
+.field-error {
+  color: #e74c3c;
+  font-size: 0.71rem;
+  margin-top: 0.1rem;
+}
+
+/* ================================================
+   SUBMIT BUTTON
+   ================================================ */
+
+.btn-submit {
+  width: 100%;
+  padding: 0.88rem;
+  background: var(--brand-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--brand-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(10, 55, 100, 0.28);
+}
+
+.btn-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ================================================
+   FOOTER
+   ================================================ */
+
+.dialog-footer p {
+  font-size: 0.81rem;
+  color: #8a9ab0;
+  margin: 0;
+}
+
+.switch-link {
+  color: var(--brand-primary);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.switch-link:hover {
+  color: var(--brand-tertiary);
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+
+@media (max-width: 520px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .dialog-title {
+    font-size: 1.4rem;
+  }
+}

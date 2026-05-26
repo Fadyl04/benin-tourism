@@ -1,69 +1,44 @@
 import jwt from 'jsonwebtoken';
 
-/**
- * Middleware pour vérifier que l'utilisateur est connecté et est client
- */
 export const authenticate = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token manquant" });
-  }
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Token manquant" });
-
   try {
+
+    const token = req.cookies?.accessToken; // SAFE ACCESS
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Token manquant"
+      });
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // contient id_user
+
+    req.user = decoded;
+
     next();
+
   } catch (err) {
-    res.status(401).json({ message: "Token invalide" });
+    return res.status(401).json({
+      success: false,
+      message: "Token invalide ou expiré"
+    });
   }
 };
 
-/**
- * Middleware pour vérifier que l'utilisateur est connecté et est admin
- */
-export const adminRole = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token admin manquant" });
-  }
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Token admin manquant" });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Accès refusé : rôle admin requis" });
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Non authentifié" });
     }
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Token admin invalide" });
-  }
-};
 
-/**
- * Middleware pour vérifier que l'utilisateur est connecté et est prestataire
- */
-export const prestataireRole = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  if (!authHeader) {
-    return res.status(401).json({ message: "Token prestataire manquant" });
-  }
-  const token = authHeader.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Token prestataire manquant" });
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    if (req.user.role !== "prestataire") {
-      return res.status(403).json({ message: "Accès refusé : rôle prestataire requis" });
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Accès refusé : rôle requis (${roles.join(', ')})`
+      });
     }
+
     next();
-  } catch (err) {
-    return res.status(401).json({ message: "Token prestataire invalide" });
-  }
+  };
 };

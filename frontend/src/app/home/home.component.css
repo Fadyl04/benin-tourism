@@ -1,0 +1,925 @@
+@import "primeicons/primeicons.css";
+/* ===== NAVBAR ===== */
+/* ===== NAVBAR CONTAINER ===== */
+.navbar-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== MENUBAR BASE ===== */
+:host ::ng-deep .p-menubar {
+  background: #0a3764 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 1rem !important;
+  min-height: 60px;
+  flex-wrap: nowrap !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* ===== SUPPRIMER TOUS LES FONDS BLANCS (variables PrimeNG) ===== */
+:host ::ng-deep .p-menubar,
+:host ::ng-deep .p-menubar * {
+  --p-highlight-bg: transparent;
+  --p-menubar-item-active-background: transparent;
+  --p-menubar-item-focus-background: transparent;
+}
+
+/* ===== LISTE DES ITEMS DESKTOP ===== */
+:host ::ng-deep .p-menubar-root-list {
+  background: transparent !important;
+  gap: 0.5rem !important;
+  flex: 1 !important;
+  justify-content: center !important;
+}
+
+/* ===== ITEM CONTENT (le wrapper de chaque item) ===== */
+:host ::ng-deep .p-menubar-item-content {
+  background: transparent !important;
+}
+
+:host ::ng-deep .p-menubar-item-content:hover,
+:host ::ng-deep .p-menubar-item.p-menubar-item-active > .p-menubar-item-content {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ===== ITEM LINK ===== */
+:host ::ng-deep .p-menubar-item-link,
+:host ::ng-deep .p-menuitem-link {
+  padding: 0 0.6rem !important;
+  min-height: 60px;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 0 !important;
+  border-bottom: 3px solid transparent;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  text-decoration: none !important;
+  transition: border-color 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+/* ===== TEXTE DES ITEMS ===== */
+:host ::ng-deep .p-menubar-item-label,
+:host ::ng-deep .p-menubar-item-icon,
+:host ::ng-deep .p-menubar-submenu-icon,
+:host ::ng-deep .p-menuitem-text,
+:host ::ng-deep .p-menuitem-icon,
+:host ::ng-deep .p-submenu-icon {
+  color: #e8edf2 !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.03em !important;
+  white-space: nowrap !important;
+}
+
+/* ===== HOVER DESKTOP : soulignement jaune ===== */
+:host ::ng-deep .p-menubar-item-link:hover,
+:host ::ng-deep .p-menuitem-link:hover {
+  border-bottom-color: #FFBE00 !important;
+  background: transparent !important;
+}
+
+:host ::ng-deep .p-menubar-item-link:hover .p-menubar-item-label,
+:host ::ng-deep .p-menubar-item-link:hover .p-menubar-item-icon,
+:host ::ng-deep .p-menubar-item-link:hover .p-menubar-submenu-icon,
+:host ::ng-deep .p-menuitem-link:hover .p-menuitem-text,
+:host ::ng-deep .p-menuitem-link:hover .p-menuitem-icon {
+  color: #ffffff !important;
+}
+
+/* ===== FOCUS : aucun fond ===== */
+:host ::ng-deep .p-menubar-item-link:focus,
+:host ::ng-deep .p-menuitem-link:focus {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ===== SOUS-MENUS DESKTOP ===== */
+:host ::ng-deep .p-menubar-submenu,
+:host ::ng-deep .p-submenu-list {
+  background: #0a3764 !important;
+  border: none !important;
+  border-top: 2px solid #FFBE00 !important;
+  border-radius: 0 0 4px 4px !important;
+  padding: 0.25rem 0 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  min-width: 200px;
+}
+
+:host ::ng-deep .p-menubar-submenu .p-menubar-item-link,
+:host ::ng-deep .p-submenu-list .p-menuitem-link {
+  min-height: auto !important;
+  height: auto !important;
+  padding: 0.65rem 1.2rem !important;
+  border-bottom: none !important;
+  border-left: 3px solid transparent !important;
+}
+
+:host ::ng-deep .p-menubar-submenu .p-menubar-item-label,
+:host ::ng-deep .p-menubar-submenu .p-menubar-item-icon,
+:host ::ng-deep .p-submenu-list .p-menuitem-text,
+:host ::ng-deep .p-submenu-list .p-menuitem-icon {
+  color: rgba(232, 237, 242, 0.85) !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
+:host ::ng-deep .p-menubar-submenu .p-menubar-item-link:hover,
+:host ::ng-deep .p-submenu-list .p-menuitem-link:hover {
+  border-left-color: #FFBE00 !important; /* AJOUTÉ : plus spécifique */
+  border-bottom: none !important;
+  background: rgba(255, 190, 0, 0.08) !important;
+}
+
+:host ::ng-deep .p-menubar-submenu .p-menubar-item-link:hover .p-menubar-item-label,
+:host ::ng-deep .p-submenu-list .p-menuitem-link:hover .p-menuitem-text {
+  color: #ffffff !important;
+}
+
+/* ===== BOUTON BURGER ===== */
+:host ::ng-deep .p-menubar-button {
+  color: #ffffff !important;
+  background: transparent !important;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  border-radius: 4px !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin-left: auto !important; /* AJOUTÉ : pousse le burger à droite */
+  order: 2 !important; /* AJOUTÉ : garantit que le burger est après le menu */
+}
+
+:host ::ng-deep .p-menubar-button:hover {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: #FFBE00 !important;
+  color: #FFBE00 !important;
+}
+
+:host ::ng-deep .p-menubar-button:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ===== FORCER LE BREAKPOINT PRIMENG À 1100px ===== */
+@media (min-width: 961px) and (max-width: 1100px) {
+  :host ::ng-deep .p-menubar-button {
+    display: flex !important;
+  }
+  :host ::ng-deep .p-menubar-root-list {
+    display: none !important;
+  }
+  :host ::ng-deep .p-menubar.p-menubar-mobile-active .p-menubar-root-list {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 1100px) {
+
+  /* Menu ouvert en mobile : fond bleu */
+  :host ::ng-deep .p-menubar-root-list {
+    background: #082d52 !important;
+    border-top: 2px solid #FFBE00 !important;
+    padding: 0.25rem 0 !important;
+    width: 100% !important;
+  }
+
+  /* Items en colonne, border gauche au hover */
+  :host ::ng-deep .p-menubar-item-link,
+  :host ::ng-deep .p-menuitem-link {
+    min-height: 48px !important;
+    padding: 0 1.2rem !important;
+    border-bottom: none !important;
+    border-left: 3px solid transparent !important;
+  }
+
+  :host ::ng-deep .p-menubar-item-link:hover,
+  :host ::ng-deep .p-menuitem-link:hover {
+    border-bottom: none !important;
+    border-left: 3px solid #FFBE00 !important;
+    background: rgba(255, 190, 0, 0.06) !important;
+  }
+
+  /* Sous-menus mobiles : pas de dropdown flottant */
+  :host ::ng-deep .p-menubar-submenu,
+  :host ::ng-deep .p-submenu-list {
+    position: static !important;
+    box-shadow: none !important;
+    border-top: none !important;
+    border-left: 3px solid #FFBE00 !important;
+    border-radius: 0 !important;
+    margin-left: 1rem !important;
+    min-width: unset !important;
+    width: calc(100% - 1rem) !important;
+  }
+
+  /* Cacher les boutons Se connecter / Créer un compte sur mobile */
+  .navbar-end {
+    display: none !important;
+  }
+}
+
+/* ===== BRAND ===== */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+}
+
+.navbar-brand img {
+  height: 36px;
+  object-fit: contain;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.brand-title {
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.brand-subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.6rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* ===== BOUTONS FIN DE NAVBAR ===== */
+.navbar-end {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-login {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #ffffff !important;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+  transition: border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-login:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-login i {
+  font-size: 0.75rem;
+}
+
+.btn-register {
+  display: flex;
+  align-items: center;
+  color: #0a3764 !important;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  padding: 0.4rem 0.7rem;
+  background: #FFBE00;
+  border: 1px solid #FFBE00;
+  border-radius: 3px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-login,
+.btn-register {
+  cursor: pointer;
+}
+
+.btn-register:hover {
+  background: #e6aa00;
+  border-color: #e6aa00;
+}
+
+/* ===== PADDING BODY ===== */
+:host {
+  display: block;
+  padding-top: 60px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+/* Tablette & mobile : menu déroulant */
+@media (max-width: 960px) {
+  .navbar-end {
+    display: none;
+  }
+
+  :host ::ng-deep .p-menubar-root-list {
+    flex-direction: column !important;
+    position: absolute !important;
+    top: 60px !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: #0a3764 !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3) !important;
+    border-top: 2px solid #FFBE00 !important;
+    justify-content: flex-start !important;
+    z-index: 999;
+  }
+
+  :host ::ng-deep .p-menubar-item-link,
+  :host ::ng-deep .p-menuitem-link {
+    min-height: 44px !important;
+    padding: 0 1.25rem !important;
+    border-bottom: none !important;
+    border-left: 3px solid transparent !important;
+  }
+
+  :host ::ng-deep .p-menubar-item-link:hover,
+  :host ::ng-deep .p-menuitem-link:hover {
+    border-left: 3px solid #FFBE00 !important;
+    border-bottom: none !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px)  {
+  .brand-title {
+    font-size: 0.82rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+}
+
+/* Desktop : cacher ces items dans le menu */
+:host ::ng-deep .mobile-only-item {
+  display: none !important;
+}
+
+/* Cacher les boutons navbar-end sous 1100px */
+@media (max-width: 1100px) {
+  .navbar-end {
+    display: none !important;
+  }
+
+  :host ::ng-deep .mobile-only-item {
+    display: flex !important;
+  }
+
+  :host ::ng-deep .mobile-register-item .p-menubar-item-link,
+  :host ::ng-deep .mobile-register-item .p-menuitem-link {
+    background: #FFBE00 !important;
+    margin: 0.4rem 0.75rem !important;
+    border-radius: 4px !important;
+    border-left: none !important;
+  }
+
+  :host ::ng-deep .mobile-register-item .p-menubar-item-label,
+  :host ::ng-deep .mobile-register-item .p-menuitem-text {
+    color: #0a3764 !important;
+  }
+
+  :host ::ng-deep .mobile-register-item .p-menubar-item-icon,
+  :host ::ng-deep .mobile-register-item .p-menuitem-icon {
+    color: #0a3764 !important;
+  }
+
+  /* Menu déroulant burger */
+  :host ::ng-deep .navbar-menubar .p-menubar-root-list {
+    position: absolute !important;
+    top: 60px !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: #082d52 !important;
+    border-top: 2px solid #FFBE00 !important;
+    padding: 0.25rem 0 !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4) !important;
+    justify-content: flex-start !important;
+    flex-direction: column !important;
+    z-index: 999;
+    height: auto !important;
+  }
+}
+/* ===== END NAVBAR ===== */
+
+/* ===== HERO SLIDESHOW ===== */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* centrer le contenu */
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 1.2s ease, transform 8s ease;
+}
+
+.hero-slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ← MANQUAIT : overlay sombre par-dessus l'image */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+
+/* ← MANQUAIT : z-index pour passer au-dessus de l'overlay */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 2rem;
+  max-width: 860px;
+  width: 100%;
+  animation: fadeUp 0.9s 0.3s both;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 190, 0, 0.15);
+  border: 1px solid rgba(255, 190, 0, 0.4);
+  color: #FFBE00;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+}
+
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FFBE00;
+  animation: pulse 2s infinite;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 1.2rem;
+}
+
+.hero-title-accent {
+  color: #FFBE00;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hero-desc {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1rem;
+  line-height: 1.8;
+  max-width: 560px;
+  margin: 0 auto 2rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FFBE00;
+  color: #0a3764 !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  padding: 0.9rem 2rem;
+  border-radius: 2px;
+  transition: all 0.25s;
+  box-shadow: 0 4px 20px rgba(255,190,0,0.3);
+}
+
+.hero-btn-primary:hover {
+  background: #e6aa00;
+  transform: translateY(-2px);
+}
+
+.hero-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  color: #ffffff !important;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  padding: 0.9rem 2rem;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 2px;
+  transition: all 0.25s;
+}
+
+.hero-btn-secondary:hover {
+  border-color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.15);
+}
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2.5rem;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+}
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFBE00;
+  line-height: 1;
+}
+
+.stat-plus { font-size: 1.2rem; }
+
+.stat-label {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.2rem;
+}
+
+/* ← MANQUAIT : scroll indicator z-index */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  right: 2.5rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scroll-indicator span {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+  animation: scrollLine 2s ease-in-out infinite;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+@keyframes scrollLine {
+  0%   { transform: scaleY(0); transform-origin: top; }
+  50%  { transform: scaleY(1); transform-origin: top; }
+  51%  { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+/* ===== END HERO SLIDESHOW ===== */
+
+/* ================================================
+   SECTION FONCTIONNALITÉS
+   ================================================ */
+.section-features {
+  padding: 3rem 0 5rem;
+  background: #ffffff;
+}
+ 
+.features-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+}
+ 
+.section-eyebrow {
+  display: inline-block;
+  background: #07417ae8;
+  color: #f7cb07;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.35rem 1rem;
+  border-radius: 50px;
+  margin-bottom: 0.75rem;
+}
+ 
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #0f0f0f;
+  padding: 0.5rem 0;
+}
+ 
+.features-intro {
+  color: #3f3e3e;
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-top: 0.5rem;
+}
+ 
+/* ── Grille ── */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+ 
+/* ================================================
+   CARDS — fond crème #faf8f4
+   ================================================ */
+:host ::ng-deep .feature-card.p-card,
+:host ::ng-deep .feature-card--gold.p-card {
+  background: #faf8f4 !important;
+  border: none !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(10, 55, 100, 0.08) !important;
+  border-top: 3px solid #FFBE00 !important;
+  transition: all 0.3s ease !important;
+  height: 100%;
+}
+ 
+:host ::ng-deep .feature-card.p-card:hover,
+:host ::ng-deep .feature-card--gold.p-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 20px 48px rgba(10, 55, 100, 0.15) !important;
+  background: #ffffff !important;
+}
+ 
+:host ::ng-deep .feature-card.p-card .p-card-header,
+:host ::ng-deep .feature-card--gold.p-card .p-card-header {
+  padding: 1.8rem 1.8rem 0 !important;
+}
+ 
+:host ::ng-deep .feature-card.p-card .p-card-body,
+:host ::ng-deep .feature-card--gold.p-card .p-card-body {
+  padding: 1.2rem 1.8rem 1.8rem !important;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+ 
+/* ── Titre ── */
+:host ::ng-deep .feature-card.p-card .p-card-title,
+:host ::ng-deep .feature-card--gold.p-card .p-card-title {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  color: #0a3764 !important;
+  margin-bottom: 0.5rem !important;
+}
+ 
+/* ── Contenu ── */
+:host ::ng-deep .feature-card.p-card .p-card-content,
+:host ::ng-deep .feature-card--gold.p-card .p-card-content {
+  flex: 1;
+  padding: 0 !important;
+}
+ 
+:host ::ng-deep .feature-card.p-card .p-card-content ul,
+:host ::ng-deep .feature-card--gold.p-card .p-card-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+ 
+:host ::ng-deep .feature-card.p-card .p-card-content ul li,
+:host ::ng-deep .feature-card--gold.p-card .p-card-content ul li {
+  color: #5a5a5a !important;
+  font-size: 0.83rem;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-left: 0;
+}
+ 
+/* Supprimer l'ancien ::before */
+:host ::ng-deep .feature-card.p-card .p-card-content ul li::before,
+:host ::ng-deep .feature-card--gold.p-card .p-card-content ul li::before {
+  content: none !important;
+}
+ 
+/* Icône bi-check dans les li */
+:host ::ng-deep .feature-card.p-card .p-card-content ul li i,
+:host ::ng-deep .feature-card--gold.p-card .p-card-content ul li i {
+  color: #0a3764 !important;
+  font-size: 1rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+ 
+/* ── Footer ── */
+:host ::ng-deep .feature-card.p-card .p-card-footer,
+:host ::ng-deep .feature-card--gold.p-card .p-card-footer {
+  padding: 1rem 0 0 !important;
+  border-top: 1px solid rgba(10, 55, 100, 0.1) !important;
+  margin-top: 1rem;
+}
+ 
+/* ── Icône header ── */
+.feature-icon-wrap {
+  width: 54px;
+  height: 54px;
+  background: rgba(10, 55, 100, 0.08);
+  border: 1px solid rgba(10, 55, 100, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s;
+}
+ 
+.feature-icon-wrap i {
+  font-size: 1.4rem;
+  color: #0a3764;
+}
+ 
+:host ::ng-deep .feature-card.p-card:hover .feature-icon-wrap {
+  background: #0a3764;
+  border-color: #0a3764;
+}
+ 
+:host ::ng-deep .feature-card.p-card:hover .feature-icon-wrap i {
+  color: #FFBE00;
+}
+ 
+/* ── Lien footer ── */
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #0a3764 !important;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(10, 55, 100, 0.25);
+  transition: all 0.2s;
+}
+ 
+.feature-link:hover {
+  gap: 0.7rem;
+  color: #FFBE00 !important;
+  border-color: #FFBE00;
+}
+ 
+/* ================================================
+   TRUST BAR
+   ================================================ */
+.features-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.4rem 2rem;
+  background: #faf8f4;
+  border: 1px solid rgba(10, 55, 100, 0.08);
+  border-radius: 10px;
+}
+ 
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 2.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #2a2a2a;
+}
+ 
+.trust-item i { color: #0a3764; font-size: 1rem; }
+ 
+.trust-sep {
+  width: 1px;
+  height: 24px;
+  background: rgba(10, 55, 100, 0.12);
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .features-trust { flex-wrap: wrap; gap: 1rem; }
+  .trust-sep { display: none; }
+  .trust-item { padding: 0 1rem; }
+}
+ 
+@media (max-width: 600px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .section-features { padding: 3rem 0; }
+}
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+

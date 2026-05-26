@@ -19,11 +19,8 @@ export const PrestataireSchema = z.object({
   email: z.string().email("Email invalide"),
 
   password: z.string()
-    .min(8, "Min 8 caractères")
-    .regex(/[a-z]/, "Doit contenir une minuscule")
-    .regex(/[A-Z]/, "Doit contenir une majuscule")
-    .regex(/\d/, "Doit contenir un chiffre")
-    .regex(/[@$!%*?&_]/, "Doit contenir un caractère spécial"),
+    .min(8)
+    .regex(/[a-zA-Z]/),
 
   telephone: z.string().refine((tel) => beninTelephoneRegex.test(tel), {
     message: "Le numéro de téléphone doit être au format +229XXXXXXXXXX (10 chiffres après +229)",
@@ -70,11 +67,8 @@ export const ClientSchema = z.object({
   email: z.string().email("Email invalide"),
 
   password: z.string()
-    .min(8, "Min 8 caractères")
-    .regex(/[a-z]/, "Doit contenir une minuscule")
-    .regex(/[A-Z]/, "Doit contenir une majuscule")
-    .regex(/\d/, "Doit contenir un chiffre")
-    .regex(/[@$!%*?&_]/, "Doit contenir un caractère spécial '@$!%*?&_'"),
+    .min(8)
+    .regex(/[a-zA-Z]/),
 });
 
 /**
@@ -198,12 +192,7 @@ export const paiementSchema = z.object({
  */
 export const loginSchema = z.object({
   email: z.string().email("Email invalide"),
-  password: z.string()
-  .min(8, "Min 8 caractères")
-  .regex(/[a-z]/, "Doit contenir une minuscule")
-  .regex(/[A-Z]/, "Doit contenir une majuscule")
-  .regex(/\d/, "Doit contenir un chiffre")
-  .regex(/[@$!%*?&_#$@?.]/, "Doit contenir un caractère spécial"),
+  password: z.string().min(1, "Mot de passe requis"),
 });
 
 /**
@@ -223,15 +212,11 @@ export const siteTouristiqueSchema = z.object({
  */
 export const newPasswordSchema = z.object({
   newPassword: z.string()
-  .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-  .regex(/[a-z]/, "Doit contenir une minuscule")
-  .regex(/[A-Z]/, "Doit contenir une majuscule")
-  .regex(/\d/, "Doit contenir un chiffre")
-  .regex(/[@$!%*?&_]/, "Doit contenir un caractère spécial"),
+    .min(8)
+    .regex(/[a-zA-Z]/), // au moins une lettre (simple, pas séparé maj/min)
   confirmPassword: z.string()
-  }).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas",
-  path: ["confirmPassword"]
-
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Les mots de passe ne correspondent pas"
 });
 

@@ -7,36 +7,35 @@ import {
     updatePrestataireController,
     showMePrestataireController
 } from '../../controllers/auth/auth.prestataire.controller.js'
-import { upload, uploadError } from '../../middlewares/upload.middleware.js';
-import { authenticate, adminRole, prestataireRole} from '../../middlewares/auth.middlewares.js'; 
+import { uploadPrestataire } from '../../middlewares/upload.middleware.js'; 
+import { authenticate, authorize} from '../../middlewares/auth.middlewares.js'; 
 const router = Router()
 
 router.post(
     '/register', 
-    upload.fields([
+    uploadPrestataire.fields([
         {name: 'document_justificatif', maxCount: 1 }, 
         {name: 'image', maxCount: 1}
     ]), 
-    uploadError,
     registerPrestataireController
 );
 
 router.put(
     '/update/:id', 
-    prestataireRole, 
-    upload.fields([
+    authenticate,
+    authorize('admin', 'prestataire'),
+    uploadPrestataire.fields([
         {name: 'document_justificatif', maxCount: 1 }, 
         {name: 'image', maxCount: 1}
     ]), 
-    uploadError,
     updatePrestataireController
 );
 
-router.get('/show/myinfo', prestataireRole, showMePrestataireController);
+router.get('/show/myinfo', authenticate, authorize('admin', 'prestataire'), showMePrestataireController);
 
 router.post('/login', loginPrestataireController);
-router.put('/change-password', authenticate, changePasswordPrestataireController);
-router.delete('/delete/:id',adminRole, deletePrestataireController);
+router.put('/change-password', authenticate, authorize('admin', 'prestataire'), changePasswordPrestataireController);
+router.delete('/delete/:id', authenticate, authorize('admin'), deletePrestataireController);
 
 
 

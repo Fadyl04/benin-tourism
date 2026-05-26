@@ -6,14 +6,15 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import path from 'path';
+import cookieParser from 'cookie-parser';
 import { fileURLToPath } from 'url';
 
 import corsHttp from './config/cors.config.js';
+import { globalLimiter } from './middlewares/rateLimit.middleware.js';
 
 // Routes
-import passwordRoute from './routes/auth/auth.password.route.js';
+import authRoute from './routes/auth/auth.route.js';
 import prestataireRoute from './routes/auth/auth.prestataire.route.js';
-import clientRoute from './routes/auth/auth.client.route.js';
 import siteTouristiqueRoute from './routes/siteTouristique.route.js';
 import evenementRoute from './routes/evenement.route.js';
 import visiteRoute from './routes/visite.route.js';
@@ -25,21 +26,15 @@ const app = express();
 /*
   MIDDLEWARES GLOBAUX
 */
+app.use(cookieParser());
 app.use(corsHttp);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(morgan('dev'));
+app.use(globalLimiter);
 
-/*
-  RATE LIMITING
-*/
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
 
-app.use(limiter);
 
 /* =======================
    SWAGGER DOCUMENTATION
@@ -81,19 +76,19 @@ const __dirname = path.dirname(__filename);
 
 // ⚠️ Remonter d’un niveau car app.js est dans src/
 /* app.use('/public', express.static(path.join(__dirname, '../public'))); */
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static('uploads'));
 
 /*
   ROUTES API
 */
-app.use('/api/password', passwordRoute);
-app.use('/api/prestataire', prestataireRoute);
-app.use('/api/client', clientRoute);
+app.use('/api/auth', authRoute);
+/* app.use('/api/prestataire', prestataireRoute);
+app.use('/api/admin', adminRoute); */
 app.use('/api/site', siteTouristiqueRoute);
 app.use('/api/evenement', evenementRoute);
 app.use('/api/visite', visiteRoute);
 app.use('/api/paiement', payReservationRoute);
-app.use('/api/admin', adminRoute);
+
 
 /*
   GESTION DES ERREURS

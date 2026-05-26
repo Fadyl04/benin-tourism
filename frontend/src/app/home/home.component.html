@@ -1,1 +1,278 @@
-<p>home works!</p>
+<!-- ===== NAVBAR ===== -->
+<div class="navbar-container">
+  <p-menubar [model]="itemsNavbar">
+
+    <ng-template pTemplate="start">
+      <div class="navbar-brand">
+        <img src="./assets/img/logo/benin-logo.png" alt="Logo Bénin Tourisme" height="44">
+        <div class="brand-text">
+          <span class="brand-title">Bénin Tourisme</span>
+          <span class="brand-subtitle">Portail officiel du tourisme béninois</span>
+        </div>
+      </div>
+    </ng-template>
+
+     <ng-template pTemplate="end">
+      <div class="navbar-end">
+        <a class="btn-login" (click)="openLogin()">
+          <i class="pi pi-user"></i>
+          Se connecter
+        </a>
+        <a class="btn-register"(click)="openRegister()">
+          Créer un compte
+        </a>
+      </div>
+    </ng-template> 
+
+  </p-menubar>
+</div>
+
+<!-- HERO SLIDESHOW -->
+<section class="hero">
+ 
+  <!-- Slideshow fond -->
+  <div class="hero-bg">
+    @for (slide of heroSlides; track slide; let i = $index) {
+      <div class="hero-slide"
+        [class.active]="i === currentSlide"
+        [style.background-image]="'url(' + slide + ')'">
+      </div>
+    }
+  </div>
+ 
+  <!-- Overlay -->
+  <div class="hero-overlay"></div>
+ 
+  <!-- Contenu -->
+  <div class="hero-content">
+ 
+    <!-- Tag -->
+    <div class="hero-tag">
+      <span class="tag-dot"></span>
+      Découvrez le Bénin
+    </div>
+ 
+    <!-- Titre -->
+    <h1 class="hero-title">
+      L'ÂME VIVANTE<br>
+      <span class="hero-title-accent">DE L'AFRIQUE</span>
+    </h1>
+    <!-- Description -->
+    <p class="hero-desc">
+      <strong> 
+        Palais majestueux, plages envoûtantes, musées riches d’histoire et événements vibrants.
+        Plongez dans une expérience culturelle et naturelle unique au cœur de l’Afrique de l’Ouest.
+      </strong>
+    </p>
+    <!-- Boutons -->
+    <div class="hero-actions">
+      <a routerLink="/sites" class="hero-btn-primary">
+        <i class="pi pi-compass"></i> Explorer les sites
+      </a>
+      <a routerLink="/evenements" class="hero-btn-secondary">
+        Voir les événements <i class="pi pi-arrow-right"></i>
+      </a>
+    </div>
+ 
+    <!-- Stats -->
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="stat-num">120<span class="stat-plus">+</span></span>
+        <span class="stat-label">Sites touristiques</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="stat-num">40<span class="stat-plus">+</span></span>
+        <span class="stat-label">Guides certifiés</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="stat-num">12</span>
+        <span class="stat-label">Départements</span>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator">
+    <span>Défiler</span>
+    <div class="scroll-line"></div>
+  </div>
+ 
+</section>
+<!-- END HERO SLIDESHOW -->
+
+
+<!-- ===== SECTION FONCTIONNALITÉS ===== -->
+<!-- ===== SECTION FONCTIONNALITÉS ===== -->
+<section class="section-features" id="features">
+  <div class="container">
+
+    <div class="features-header">
+      <span class="section-eyebrow bi bi-gear">FONCTIONNALITÉS</span>
+      <h2 class="section-title">Explorez le meilleur du Bénin</h2>
+      <p class="features-intro">
+        Bénin Tourisme, tout pour organiser et réserver votre voyage au Bénin, en un seul endroit.
+      </p>
+    </div>
+
+    <div class="features-grid">
+
+      <p-card styleClass="feature-card">
+        <ng-template pTemplate="header">
+          <div class="feature-icon-wrap">
+            <i class="fa-solid fa-monument"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">Sites & Visites touristiques</ng-template>
+        <ng-template pTemplate="content">
+          <ul>
+            <li>
+              <i class="bi bi-check"></i>
+              Partez à la découverte des trésors touristiques du Bénin
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Planifiez vos visites grâce à des informations fiables et détaillées
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Réservez en quelques clics et profitez d’une expérience sécurisée et sans stress
+            </li>
+          </ul>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <a routerLink="/sites" class="feature-link">
+            Explorer les sites <i class="pi pi-arrow-right"></i>
+          </a>
+        </ng-template>
+      </p-card>
+
+      <p-card styleClass="feature-card feature-card--gold">
+        <ng-template pTemplate="header">
+          <div class="feature-icon-wrap">
+            <i class="pi pi-credit-card"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">Evènements culturels</ng-template>
+        <ng-template pTemplate="content">
+          <ul>
+            <li>
+              <i class="bi bi-check"></i>
+              Plongez au cœur des événements culturels incontournables du Bénin
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Accédez à des informations complètes pour ne rien manquer
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Réservez en quelques clics et profitez d’une expérience simple, rapide et sécurisée
+            </li>
+          </ul>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <a routerLink="/reservation" class="feature-link">
+            Réserver maintenant <i class="pi pi-arrow-right"></i>
+          </a>
+        </ng-template>
+      </p-card>
+
+      <p-card styleClass="feature-card">
+        <ng-template pTemplate="header">
+          <div class="feature-icon-wrap">
+            <i class="pi pi-calendar"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">Prestataires</ng-template>
+        <ng-template pTemplate="content">
+          <ul>
+            <li>
+              <i class="bi bi-check"></i>
+              Rejoignez la plateforme en tant que guide, hôtel ou transporteur
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Valorisez votre expertise et développez votre visibilité
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Collaborez à des expériences touristiques et évènements
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Gérez facilement votre profil et vos informations professionnelles
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Profitez d’un système de validation garantissant qualité et confiance
+            </li>
+          </ul>
+        </ng-template>
+        <ng-template pTemplate="footer">
+          <a routerLink="/evenements" class="feature-link">
+            Voir l'agenda <i class="pi pi-arrow-right"></i>
+          </a>
+        </ng-template>
+      </p-card>
+
+      <p-card styleClass="feature-card feature-card--gold">
+        <ng-template pTemplate="header">
+          <div class="feature-icon-wrap">
+            <i class="pi pi-ticket"></i>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="title">Système de paiement</ng-template>
+        <ng-template pTemplate="content">
+          <ul>
+            <li>
+              <i class="bi bi-check"></i>
+              Payez vos réservations en toute sécurité via Mobile Money ou carte bancaire
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Bénéficiez d’une confirmation instantanée après chaque paiement
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Suivez facilement vos transactions et vos réservations
+            </li>
+            <li>
+              <i class="bi bi-check"></i>
+              Profitez d’un système fiable et adapté aux réalités locales
+            </li>
+          </ul>
+        </ng-template>
+      </p-card>
+
+    </div>
+
+    <!-- Badges de confiance -->
+    <div class="features-trust">
+      <div class="trust-item">
+        <i class="pi pi-shield"></i>
+        <span>Paiement sécurisé SSL</span>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <i class="pi pi-check-circle"></i>
+        <span>Confirmation instantanée</span>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <i class="pi pi-headphones"></i>
+        <span>Support 7j/7</span>
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <i class="pi pi-refresh"></i>
+        <span>Remboursement garanti</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== AUTH MODALS ===== -->
+<app-auth></app-auth>

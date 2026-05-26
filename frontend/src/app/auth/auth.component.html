@@ -1,0 +1,221 @@
+<p-toast position="top-right"></p-toast>
+
+<!-- ===== MODAL LOGIN ===== -->
+<p-dialog
+  [(visible)]="showLogin"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="auth-dialog"
+  [style]="{ width: '440px' }"
+  (onHide)="onLoginClose()">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <h2 class="dialog-title">Connexion</h2>
+      <p class="dialog-subtitle">Accédez à votre espace personnel</p>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form class="auth-form" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="loginEmail">Adresse e-mail</label>
+        <div class="input-wrap">
+          <i class="pi pi-envelope"></i>
+          <input pInputText id="loginEmail" type="email"
+            formControlName="email"
+            placeholder="votre@email.com"
+            autocomplete="email"
+            [class.input-error]="isInvalid(loginForm, 'email')" />
+        </div>
+        <small class="field-error" *ngIf="isInvalid(loginForm, 'email')">
+          {{ getError(loginForm, 'email') }}
+        </small>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="loginPassword">Mot de passe</label>
+        <div class="input-wrap">
+          <i class="pi pi-lock"></i>
+          <input pInputText id="loginPassword"
+            [type]="showLoginPwd ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            [class.input-error]="isInvalid(loginForm, 'password')" />
+          <button type="button" class="toggle-pwd"
+            (click)="showLoginPwd = !showLoginPwd">
+            <i [class]="showLoginPwd ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="isInvalid(loginForm, 'password')">
+          {{ getError(loginForm, 'password') }}
+        </small>
+      </div>
+
+      <!-- Options -->
+      <div class="form-options">
+        <label class="remember-me">
+          <p-checkbox formControlName="remember" [binary]="true"
+            inputId="remember"></p-checkbox>
+          <span>Se souvenir de moi</span>
+        </label>
+        <a routerLink="/forgot-password" class="forgot-link">Mot de passe oublié ?</a>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-submit" [disabled]="loginLoading">
+        <span *ngIf="!loginLoading">Se connecter</span>
+        <span *ngIf="loginLoading">
+          <i class="pi pi-spin pi-spinner"></i> Connexion...
+        </span>
+      </button>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p>Pas encore de compte ?
+        <a (click)="switchToRegister()" class="switch-link">Créer un compte</a>
+      </p>
+    </div>
+  </ng-template>
+
+</p-dialog>
+
+<!-- ===== MODAL REGISTER ===== -->
+<p-dialog
+  [(visible)]="showRegister"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="auth-dialog"
+  [style]="{ width: '480px' }"
+  (onHide)="onRegisterClose()">
+
+  <ng-template pTemplate="header">
+    <div class="dialog-header">
+      <h2 class="dialog-title">Créer un compte</h2>
+      <p class="dialog-subtitle">Rejoignez la communauté Bénin Tourisme</p>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="content">
+    <form class="auth-form" [formGroup]="registerForm" (ngSubmit)="onRegister()">
+
+      <!-- Nom + Prénom — aligné Prisma -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nom">Nom</label>
+          <div class="input-wrap">
+            <i class="pi pi-user"></i>
+            <input pInputText id="nom" type="text"
+              formControlName="nom" placeholder="AGOSSOU"
+              [class.input-error]="isInvalid(registerForm, 'nom')" />
+          </div>
+          <small class="field-error" *ngIf="isInvalid(registerForm, 'nom')">
+            {{ getError(registerForm, 'nom') }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="prenom">Prénom</label>
+          <div class="input-wrap">
+            <i class="pi pi-user"></i>
+            <input pInputText id="prenom" type="text"
+              formControlName="prenom" placeholder="Kofi"
+              [class.input-error]="isInvalid(registerForm, 'prenom')" />
+          </div>
+          <small class="field-error" *ngIf="isInvalid(registerForm, 'prenom')">
+            {{ getError(registerForm, 'prenom') }}
+          </small>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="regEmail">Adresse e-mail</label>
+        <div class="input-wrap">
+          <i class="pi pi-envelope"></i>
+          <input pInputText id="regEmail" type="email"
+            formControlName="email" placeholder="votre@email.com"
+            autocomplete="email"
+            [class.input-error]="isInvalid(registerForm, 'email')" />
+        </div>
+        <small class="field-error" *ngIf="isInvalid(registerForm, 'email')">
+          {{ getError(registerForm, 'email') }}
+        </small>
+      </div>
+
+      <!-- Mot de passe -->
+      <div class="form-group">
+        <label for="regPassword">Mot de passe</label>
+        <div class="input-wrap">
+          <i class="pi pi-lock"></i>
+          <input pInputText id="regPassword"
+            [type]="showRegPwd ? 'text' : 'password'"
+            formControlName="password" placeholder="••••••••"
+            autocomplete="new-password"
+            [class.input-error]="isInvalid(registerForm, 'password')" />
+          <button type="button" class="toggle-pwd"
+            (click)="showRegPwd = !showRegPwd">
+            <i [class]="showRegPwd ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="isInvalid(registerForm, 'password')">
+          {{ getError(registerForm, 'password') }}
+        </small>
+        <div class="pwd-strength" *ngIf="registerForm.get('password')?.value">
+          <div class="strength-bar" [class]="'strength-' + passwordStrength"></div>
+          <span class="strength-label">{{ passwordStrengthLabel }}</span>
+        </div>
+      </div>
+
+      <!-- Confirmation -->
+      <div class="form-group">
+        <label for="regConfirm">Confirmer le mot de passe</label>
+        <div class="input-wrap">
+          <i class="pi pi-lock"></i>
+          <input pInputText id="regConfirm"
+            [type]="showRegConfirm ? 'text' : 'password'"
+            formControlName="confirm" placeholder="••••••••"
+            autocomplete="new-password"
+            [class.input-error]="passwordMismatch" />
+          <button type="button" class="toggle-pwd"
+            (click)="showRegConfirm = !showRegConfirm">
+            <i [class]="showRegConfirm ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+          </button>
+        </div>
+        <small class="field-error" *ngIf="passwordMismatch">
+          Les mots de passe ne correspondent pas
+        </small>
+      </div>
+
+      <!-- Bouton -->
+      <button type="submit" class="btn-submit"
+        [disabled]="registerLoading || registerForm.invalid">
+        <span *ngIf="!registerLoading">Créer mon compte</span>
+        <span *ngIf="registerLoading">
+          <i class="pi pi-spin pi-spinner"></i> Création...
+        </span>
+      </button>
+
+    </form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <p>Déjà un compte ?
+        <a (click)="switchToLogin()" class="switch-link">Se connecter</a>
+      </p>
+    </div>
+  </ng-template>
+
+</p-dialog>

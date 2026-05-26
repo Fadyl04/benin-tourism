@@ -6,10 +6,13 @@ import {
   deleteVisiteController,
   updateVisiteController
 } from "../controllers/visite.controller.js";
-import { authenticate, adminRole } from '../middlewares/auth.middlewares.js';
-import { upload } from '../middlewares/upload.middleware.js';
+import { authenticate, authorize } from '../middlewares/auth.middlewares.js';
+import { createUploadMiddleware } from '../middlewares/upload.middleware.js';
+import {can} from "../middlewares/can.middleware.js";
 
 const router = Router();
+const uploadVisite = createUploadMiddleware('visites');
+
 
 /**
  * @swagger
@@ -150,7 +153,7 @@ const router = Router();
  *       201:
  *         description: Visite créée avec succès
  */
-router.post("/create", adminRole, upload.single('image'), createVisiteController);
+router.post("/create", authenticate, can('create', 'Visite'), uploadVisite.single('image'), createVisiteController);
 
 
 /**
@@ -215,7 +218,7 @@ router.post("/create", adminRole, upload.single('image'), createVisiteController
  *       404:
  *         description: Visite non trouvée
  */
-router.put("/update/:id_visite", adminRole, upload.single('image'), updateVisiteController);
+router.put("/update/:id_visite", authenticate, can('update', 'Visite'), uploadVisite.single('image'), updateVisiteController);
 
 /**
  * @swagger
@@ -238,7 +241,7 @@ router.put("/update/:id_visite", adminRole, upload.single('image'), updateVisite
  *       404:
  *         description: Visite non trouvée
  */
-router.delete("/delete/:id_visite", adminRole, deleteVisiteController);
+router.delete("/delete/:id_visite", authenticate, can('delete', 'Visite'), deleteVisiteController);
 
 
 /**

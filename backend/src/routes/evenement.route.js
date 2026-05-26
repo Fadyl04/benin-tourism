@@ -6,10 +6,12 @@ import {
     updateEvenementController,
     deleteEvenementController
 } from '../controllers/evenement.controller.js';
-import { upload } from '../middlewares/upload.middleware.js';
-import {authenticate, adminRole} from '../middlewares/auth.middlewares.js';
+import { createUploadMiddleware } from '../middlewares/upload.middleware.js';
+import {authenticate, authorize} from '../middlewares/auth.middlewares.js';
+import { can} from "../middlewares/can.middleware.js";
 
 const router = Router();
+const uploadEvenement = createUploadMiddleware('evenements');
 
 /**
  * @swagger
@@ -135,7 +137,7 @@ const router = Router();
  *       201:
  *         description: Événement créé avec succès
  */
-router.post('/create', adminRole, upload.single('image'), createEvenementController);
+router.post('/create', authenticate, can('create', 'Evenement'), uploadEvenement.single('image'), createEvenementController);
 
 /**
  * @swagger
@@ -193,7 +195,7 @@ router.post('/create', adminRole, upload.single('image'), createEvenementControl
  *       404:
  *         description: Événement non trouvé
  */
-router.put('/update/:id', adminRole, upload.single('image'), updateEvenementController);
+router.put('/update/:id', authenticate, can('update', 'Evenement'), uploadEvenement.single('image'), updateEvenementController);
 
 
 /**
@@ -217,7 +219,7 @@ router.put('/update/:id', adminRole, upload.single('image'), updateEvenementCont
  *       404:
  *         description: Événement non trouvé
  */
-router.delete('/delete/:id',adminRole ,deleteEvenementController);
+router.delete('/delete/:id',authenticate, can('delete', 'Evenement'),deleteEvenementController);
 
 
 /**

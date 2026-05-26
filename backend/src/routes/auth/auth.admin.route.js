@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import {loginAdminController, logoutAdminController} from '../../controllers/auth/auth.admin.controller.js';
-import { adminRole } from '../../middlewares/auth.middlewares.js';
+import { authenticate, authorize } from '../../middlewares/auth.middlewares.js';
 import { 
     getAllPrestatairesController,
     validerPrestataireController,
@@ -21,33 +21,33 @@ import {
 const router = Router();
 
 router.post('/login', loginAdminController);
-router.post("/logout", adminRole, logoutAdminController);
+router.post("/logout", authenticate, authorize('admin'), logoutAdminController);
 
 /**
  * Gestion des prestataires
  */
-router.get('/prestataires', adminRole, getAllPrestatairesController);
-router.post('/prestataires/:Iduser/valider', adminRole, validerPrestataireController);
-router.post('/prestataires/:Iduser/refuser', adminRole, refuserPrestataireController);
-router.post('/prestataires/:Iduser/entretien', adminRole, entretienPrestataireController);
-router.post('/prestataires/:Iduser/attente', adminRole, demandeEnAttenteController);
+router.get('/prestataires', authenticate, authorize('admin'), getAllPrestatairesController);
+router.post('/prestataires/:Iduser/valider', authenticate, authorize('admin'), validerPrestataireController);
+router.post('/prestataires/:Iduser/refuser', authenticate, authorize('admin'), refuserPrestataireController);
+router.post('/prestataires/:Iduser/entretien', authenticate, authorize('admin'), entretienPrestataireController);
+router.post('/prestataires/:Iduser/attente', authenticate, authorize('admin'), demandeEnAttenteController);
 
 /**
  * Statistiques prestataires
  */
-router.get('/prestataires/count/valides', adminRole, countPrestatairesValidesController);
-router.get('/prestataires/count/en-attente', adminRole, countPrestatairesEnAttenteController);
-router.get('/prestataires/count/rejetes', adminRole, countPrestatairesRejetesController);
-router.get('/prestataires/count/all', adminRole, countAllPrestatairesController);
-router.get('/prestataires/count/type/:type', adminRole, countPrestatairesByTypeController);
-router.get('/prestataires/stats', adminRole, getPrestatairesStatsController);
+router.get('/prestataires/count/valides', authenticate, authorize('admin'), countPrestatairesValidesController);
+router.get('/prestataires/count/en-attente', authenticate, authorize('admin'), countPrestatairesEnAttenteController);
+router.get('/prestataires/count/rejetes', authenticate, authorize('admin'), countPrestatairesRejetesController);
+router.get('/prestataires/count/all', authenticate, authorize('admin'), countAllPrestatairesController);
+router.get('/prestataires/count/type/:type', authenticate, authorize('admin'), countPrestatairesByTypeController);
+router.get('/prestataires/stats', authenticate, authorize('admin'), getPrestatairesStatsController);
 
 /**
  * Statistiques événements et visites
  */
-router.get('/stats/evenements', adminRole, getEventStatsController);
-router.get('/stats/visites', adminRole, getVisitStatsController);
-router.get('/stats/global', adminRole, getGlobalStatsController);
+router.get('/stats/evenements', authenticate, authorize('admin'), getEventStatsController);
+router.get('/stats/visites', authenticate, authorize('admin'), getVisitStatsController);
+router.get('/stats/global', authenticate, authorize('admin'), getGlobalStatsController);
 
 
 

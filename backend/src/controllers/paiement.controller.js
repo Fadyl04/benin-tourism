@@ -3,7 +3,7 @@ import {
   createPaymentLink,
   PaiementCallbackService
 } from '../services/paiement.service.js';
-import { getClientByIdService } from '../services/auth/auth.client.service.js';
+import { getClientByIdService } from '../services/user.service.js';
 import { getReservationByIdService } from '../services/reservation.service.js';
 
 /**

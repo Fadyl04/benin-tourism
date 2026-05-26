@@ -1,0 +1,255 @@
+:root {
+    /* Couleurs de la marque */
+    --brand-primary: #0a3764;
+    --brand-primary-hover: #073b6ee8;
+    --brand-secondary: #008559;
+    --brand-secondary-hover: #006e4a; /* Ajouté pour la cohérence */
+    --brand-tertiary: #FFBE00;
+    /* Styles globaux */
+    --focus-ring: rgba(10, 55, 100, 0.25);
+
+    --p-primary-color: var(--brand-primary);
+    --p-highlight-bg: var(--brand-tertiary);
+    --p-text-color: white;
+
+}
+
+/* Styles de base */
+html, body { 
+    height: 100%; 
+}
+body { 
+    margin: 0; 
+    font-family: 'Montserrat', sans-serif; 
+    
+} 
+
+/* Classes utilitaires de couleur */
+.bg-brand-primary { background-color: var(--brand-primary) !important; }
+.text-brand-primary { color: var(--brand-primary) !important; }
+.text-brand-secondary { color: var(--brand-secondary) !important; }
+
+/* Effet 3D pour le texte */
+.text-3d {
+    text-shadow:
+        0 1px 0 rgba(0, 0, 0, 0.08),
+        0 2px 0 rgba(0, 0, 0, 0.07),
+        0 3px 0 rgba(0, 0, 0, 0.06),
+        0 4px 0 rgba(0, 0, 0, 0.05),
+        0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Boutons */
+.btn-store {
+    border: 1px solid var(--brand-secondary);
+    transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.btn-store:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.btn-store:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* Éléments UI */
+.badge-soon {
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    background-color: var(--brand-primary);
+    color: #fff;
+    white-space: nowrap;
+}
+
+.icon-circle {
+    border: 1px solid var(--brand-primary);
+    border-radius: 9999px;
+    display: inline-flex; /* Mieux pour centrer les icônes */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Bouton retour haut de page */
+.btn-back-to-top {
+    position: fixed;
+    right: 1rem;
+    bottom: 1.25rem;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--brand-secondary);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+    border: none;
+    cursor: pointer;
+}
+.btn-back-to-top:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.16);
+    background-color: var(--brand-secondary-hover);
+}
+.btn-back-to-top:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+/* Animations */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    transform-origin: center;
+}
+
+/* ── Dialog container ── */
+.auth-dialog .p-dialog {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: none !important;
+  box-shadow: 0 24px 64px rgba(6, 20, 40, 0.25) !important;
+  background: #ffffff !important;
+}
+ 
+/* ── Header navy ── */
+.auth-dialog .p-dialog-header {
+  background: #0a3764 !important;
+  padding: 1.8rem 2rem 1.6rem !important;
+  border-bottom: none !important;
+  border-radius: 12px 12px 0 0 !important;
+  position: relative !important;
+}
+ 
+/* Barre or sous le header */
+.auth-dialog .p-dialog-header::after {
+  content: '' !important;
+  display: block !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #FFBE00, #e6aa00) !important;
+}
+ 
+/* Bouton fermer */
+.auth-dialog .p-dialog-header-icon {
+  color: rgba(255, 255, 255, 0.55) !important;
+  border-radius: 6px !important;
+}
+ 
+.auth-dialog .p-dialog-header-icon:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+ 
+/* ── Content ── */
+.auth-dialog .p-dialog-content {
+  background: #ffffff !important;
+  padding: 1.8rem 2rem !important;
+}
+ 
+/* ── Footer ── */
+.auth-dialog .p-dialog-footer {
+  background: #fafafa !important;
+  padding: 1rem 2rem !important;
+  border-top: 1px solid rgba(10, 55, 100, 0.07) !important;
+  border-radius: 0 0 12px 12px !important;
+  text-align: center;
+}
+ 
+/* ── Inputs ── */
+.auth-dialog .p-inputtext {
+  border-radius: 7px !important;
+}
+ 
+/* ── Variables Aura ── */
+.auth-dialog {
+  --p-dialog-border-radius: 12px !important;
+  --p-overlay-modal-border-radius: 12px !important;
+  --p-inputtext-border-radius: 7px !important;
+  --p-rounded-base: 12px !important;
+}
+ 
+/* ── Overlay ── */
+.p-dialog-mask:has(.auth-dialog) {
+  background: rgba(6, 20, 40, 0.55) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+
+/* ================================================
+   FIX DARK MODE — AUTH DIALOG
+   ================================================ */
+
+/* Forcer fond blanc sur tous les inputs du dialog */
+.auth-dialog .p-dialog-content input,
+.auth-dialog .p-dialog-content .p-inputtext {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: rgba(10, 55, 100, 0.14) !important;
+  color-scheme: light !important;
+}
+
+.auth-dialog .p-dialog-content input:focus,
+.auth-dialog .p-dialog-content .p-inputtext:focus {
+  background: #ffffff !important;
+  border-color: #0a3764 !important;
+}
+
+.auth-dialog .p-dialog-content input::placeholder {
+  color: rgba(10, 55, 100, 0.3) !important;
+}
+
+/* Forcer fond blanc sur le content */
+.auth-dialog .p-dialog-content {
+  background: #ffffff !important;
+  color-scheme: light !important;
+}
+
+/* ── FIX CHECKBOX INVISIBLE ── */
+.auth-dialog .p-checkbox,
+.auth-dialog .p-checkbox * {
+  color-scheme: light !important;
+}
+
+.auth-dialog .p-checkbox .p-checkbox-box {
+  background: #ffffff !important;
+  border: 2px solid rgba(10, 55, 100, 0.4) !important;
+  border-radius: 4px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.auth-dialog .p-checkbox .p-checkbox-box.p-highlight {
+  background: #0a3764 !important;
+  border-color: #0a3764 !important;
+}
+
+.auth-dialog .p-checkbox .p-checkbox-box svg,
+.auth-dialog .p-checkbox .p-checkbox-box .p-checkbox-icon {
+  color: #073b6ee8 !important;
+  fill: #073b6ee8 !important;
+  stroke: #073b6ee8 !important;
+}
+
+/* Variables Aura pour forcer light */
+.auth-dialog .p-dialog {
+  color-scheme: light !important;
+  --p-checkbox-checked-background: #0a3764;
+  --p-checkbox-checked-border-color: #0a3764;
+  --p-checkbox-icon-color: #ffffff;
+  --p-inputtext-background: #ffffff;
+  --p-inputtext-color: #1a1a1a;
+}

@@ -196,7 +196,6 @@ router.delete('/cancel', authenticate, cancelReservationController);
 router.get('/show', authenticate, getAllReservationsController);
 
 
-
 /**
  * @swagger
  * /{id}:

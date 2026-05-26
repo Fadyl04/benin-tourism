@@ -3,26 +3,95 @@ import transporter from "../config/mail.config.js";
 /**
  * Réinitialisation du mot de passe
  */
-export const sendResetPasswordEmail = async (toEmail, resetLink) => {
+/**
+ * Réinitialisation du mot de passe
+ */
+export const sendResetPasswordEmail = async (
+  toEmail,
+  resetLink
+) => {
+
   await transporter.sendMail({
+
     from: process.env.EMAIL_USER,
+
     to: toEmail,
+
     subject: "Réinitialisation de votre mot de passe",
+
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        
+      <div style="
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: auto;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      ">
+
         <!-- HEADER -->
-        <div style="background: linear-gradient(90deg, #008751, #FCD116, #E8112D); padding: 20px; color: white; text-align: center;">
-          <h2 style="margin: 0;">Tourisme Bénin</h2>
+        <div style="
+          background: linear-gradient(90deg, #008751, #FCD116, #E8112D);
+          padding: 20px;
+          color: white;
+          text-align: center;
+        ">
+          <h2 style="margin: 0;">
+            Tourisme Bénin
+          </h2>
         </div>
 
         <!-- CONTENT -->
         <div style="padding: 20px; color: #333;">
+
           <p>Bonjour,</p>
-          <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-          <p>Cliquez sur le bouton ci-dessous pour créer un nouveau mot de passe :</p>
-          <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background: #008751; color: white; border-radius: 5px; text-decoration: none; margin: 10px 0;">Réinitialiser mon mot de passe</a>
-          <p>⚠️ Ce lien expire dans <strong>1 heure</strong>.</p>
+
+          <p>
+            Vous avez demandé la réinitialisation
+            de votre mot de passe.
+          </p>
+
+          <p>
+            Cliquez sur le bouton ci-dessous
+            pour définir un nouveau mot de passe :
+          </p>
+
+          <div style="text-align: center; margin: 30px 0;">
+
+            <a
+              href="${resetLink}"
+              style="
+                display: inline-block;
+                padding: 12px 24px;
+                background: #008751;
+                color: white;
+                border-radius: 5px;
+                text-decoration: none;
+                font-weight: bold;
+              "
+            >
+              Réinitialiser mon mot de passe
+            </a>
+
+          </div>
+
+          <p>
+            ⚠️ Ce lien expire dans
+            <strong>15 minutes</strong>.
+          </p>
+
+          <hr style="margin: 20px 0;">
+
+          <p style="font-size: 12px; color: #777;">
+            Si vous n'êtes pas à l'origine
+            de cette demande,
+            vous pouvez ignorer cet email.
+          </p>
+
+          <p style="font-size: 12px; color: #777;">
+            © 2026 Bénin Tourisme
+          </p>
+
         </div>
 
       </div>
