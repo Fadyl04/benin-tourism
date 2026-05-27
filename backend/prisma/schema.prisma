@@ -1,6 +1,8 @@
 generator client {
   provider = "prisma-client-js"
-  /* output   = "../src/generated/prisma" */
+  /**
+   * output   = "../src/generated/prisma"
+   */
 }
 
 datasource db {
@@ -55,21 +57,24 @@ enum StatutPaiement {
 }
 
 model User {
-  id_user        String   @id @default(uuid())
-  nom            String
-  prenom         String
-  email          String   @unique
-  password       String
-  role           Role     @default(client)
+  id_user  String @id @default(uuid())
+  nom      String
+  prenom   String
+  email    String @unique
+  password String
+  role     Role   @default(client)
 
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  firstLogin     Boolean       @default(true)
-  
-  reservations   Reservation[]
-  paiements      Paiement[]
-  prestataire    Prestataire?
+  firstLogin Boolean @default(true)
+
+  avis      Avis[]
+  auditLogs AuditLog[]
+
+  reservations Reservation[]
+  paiements    Paiement[]
+  prestataire  Prestataire?
 
   @@index([email])
   @@index([role])
@@ -77,171 +82,228 @@ model User {
 }
 
 model PasswordReset {
-  id           String   @id @default(uuid())
-  email        String
-  token        String   @unique
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("password_resets")
 }
 
 model Prestataire {
-  id_prestataire        String   @id @default(uuid())
-  idUser                String   @unique
+  id_prestataire String @id @default(uuid())
+  idUser         String @unique
 
-  image                String?
-  type                 Type
-  genre                Genre
-  date_naissance       DateTime
-  adresse              String
-  ville                String
-  telephone            String
-  annee_experience     Int
+  image                 String?
+  type                  Type
+  genre                 Genre
+  date_naissance        DateTime
+  adresse               String
+  ville                 String
+  telephone             String
+  annee_experience      Int
   document_justificatif String
-  
-  statut         StatutPrestataire        @default(inactif)
-  statut_validation    StatutValidation
 
-  createdAt            DateTime    @default(now()) @map("created_at")
-  updatedAt            DateTime    @updatedAt @map("updated_at")
+  statut            StatutPrestataire @default(inactif)
+  statut_validation StatutValidation
 
-  user                 User        @relation(fields: [idUser], references: [id_user])
-  guides               Visite[]    @relation("Guide")
-  hotels               Visite[]    @relation("Hotel")
-  transports           Visite[]    @relation("Transport")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  evenements           Evenement[] @relation("Hotel")
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  avis       Avis[]
+  user       User     @relation(fields: [idUser], references: [id_user])
+  guides     Visite[] @relation("Guide")
+  hotels     Visite[] @relation("Hotel")
+  transports Visite[] @relation("Transport")
+
+  evenements Evenement[] @relation("Hotel")
 
   @@index([statut_validation])
   @@map("prestataires")
 }
 
 model SiteTouristique {
-  id_site       String   @id @default(uuid())
-  nom           String
-  image         String
-  description   String         @db.Text
-  localisation  String
-  horaire       String
-  categorie     String
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
+  id_site      String    @id @default(uuid())
+  nom          String
+  image        String
+  description  String    @db.Text
+  localisation String
+  horaire      String
+  categorie    String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  isDeleted    Boolean   @default(false)
+  deletedAt    DateTime?
 
-  visiteSites   VisiteSite[]
+  visiteSites VisiteSite[]
 
   @@index([categorie])
   @@map("site_touristiques")
 }
 
 model Evenement {
-  id_evenement    String   @id @default(uuid())
-  id_hotel        String?
-  nom             String
-  image           String
-  description     String
-  localisation    String
-  date_debut      DateTime
-  date_fin        DateTime
-  nombre_place     Int
+  id_evenement String   @id @default(uuid())
+  id_hotel     String?
+  nom          String
+  image        String
+  description  String
+  localisation String
+  date_debut   DateTime
+  date_fin     DateTime
+  nombre_place Int
 
-  prix_standard   Decimal        @db.Decimal(10, 2)
-  prix_vip        Decimal        @db.Decimal(10, 2)
-  prix_elite      Decimal?       @db.Decimal(10, 2)
-  prix_premium    Decimal        @db.Decimal(10, 2)
-  categorie       String
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  prix_standard Decimal   @db.Decimal(10, 2)
+  prix_vip      Decimal   @db.Decimal(10, 2)
+  prix_elite    Decimal?  @db.Decimal(10, 2)
+  prix_premium  Decimal   @db.Decimal(10, 2)
+  categorie     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
 
-  hotel           Prestataire?   @relation("Hotel", fields: [id_hotel], references: [id_prestataire])
+  hotel        Prestataire?  @relation("Hotel", fields: [id_hotel], references: [id_prestataire])
+  reservations Reservation[]
 
   @@index([categorie])
-  reservations   Reservation[]
   @@map("evenements")
 }
 
 model Visite {
-  id_visite        String   @id @default(uuid())
-  id_guide        String
-  id_hotel        String?
-  id_transport    String
+  id_visite    String  @id @default(uuid())
+  id_guide     String
+  id_hotel     String?
+  id_transport String
 
-  nom                  String
-  image                String?
-  description          String
-  prix_economique      Decimal        @db.Decimal(10, 2)
-  prix_confort         Decimal        @db.Decimal(10, 2)
-  prix_premium         Decimal        @db.Decimal(10, 2)
-  nombre_places        Int
-  date_debut           DateTime
-  date_fin             DateTime
-  lieu_date_depart     String        
-  parcours             String?
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  nom              String
+  image            String?
+  description      String
+  prix_economique  Decimal   @db.Decimal(10, 2)
+  prix_confort     Decimal   @db.Decimal(10, 2)
+  prix_premium     Decimal   @db.Decimal(10, 2)
+  nombre_places    Int
+  date_debut       DateTime
+  date_fin         DateTime
+  lieu_date_depart String
+  parcours         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  isDeleted        Boolean   @default(false)
+  deletedAt        DateTime?
 
-  reservations    Reservation[]
-  visiteSites     VisiteSite[]
+  reservations Reservation[]
+  visiteSites  VisiteSite[]
 
-  guide           Prestataire    @relation("Guide", fields: [id_guide], references: [id_prestataire])
-  hotel           Prestataire?   @relation("Hotel", fields: [id_hotel], references: [id_prestataire])
-  transport       Prestataire   @relation("Transport", fields: [id_transport], references: [id_prestataire])
+  guide     Prestataire  @relation("Guide", fields: [id_guide], references: [id_prestataire])
+  hotel     Prestataire? @relation("Hotel", fields: [id_hotel], references: [id_prestataire])
+  transport Prestataire  @relation("Transport", fields: [id_transport], references: [id_prestataire])
 
   @@index([date_debut])
   @@map("visites")
 }
 
+model Avis {
+  id_avis String @id @default(uuid())
+
+  id_user        String
+  id_prestataire String
+
+  note        Int
+  commentaire String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  user        User        @relation(fields: [id_user], references: [id_user], onDelete: Cascade)
+  prestataire Prestataire @relation(fields: [id_prestataire], references: [id_prestataire], onDelete: Cascade)
+
+  @@unique([id_user, id_prestataire])
+  @@index([id_prestataire])
+  @@map("avis")
+}
+
+model AuditLog {
+  id_log String @id @default(uuid())
+
+  id_user String?
+
+  action    String
+  entity    String
+  entity_id String?
+
+  metadata Json?
+
+  ip_address String?
+  user_agent String?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [id_user], references: [id_user], onDelete: SetNull)
+
+  @@index([id_user])
+  @@index([entity])
+  @@map("audit_logs")
+}
+
 model Reservation {
-  id_reservation   String   @id @default(uuid())
-  id_user            String
-  id_evenement       String?
-  id_visite          String?
-  montant            Decimal            @db.Decimal(10, 2)
-  nombre_personnes   Int
-  date_reservation   DateTime           @default(now())
-  statut             StatutReservation  @default(en_attente)
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id_reservation   String            @id @default(uuid())
+  id_user          String
+  id_evenement     String?
+  id_visite        String?
+  montant          Decimal           @db.Decimal(10, 2)
+  nombre_personnes Int
+  date_reservation DateTime          @default(now())
+  statut           StatutReservation @default(en_attente)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  user               User               @relation(fields: [id_user], references: [id_user])
-  evenement          Evenement?         @relation(fields: [id_evenement], references: [id_evenement])
-  visite             Visite?            @relation(fields: [id_visite], references: [id_visite])
+  user      User       @relation(fields: [id_user], references: [id_user])
+  evenement Evenement? @relation(fields: [id_evenement], references: [id_evenement])
+  visite    Visite?    @relation(fields: [id_visite], references: [id_visite])
 
-  paiements          Paiement[]
+  paiements Paiement[]
+
   @@index([id_user])
   @@index([statut])
   @@map("reservations")
 }
 
-
 model Paiement {
-  id_paiement     String @id @default(uuid())
-  id_reservation  String
-  id_user         String
-  montant         Decimal          @db.Decimal(10, 2)
-  date_paiement   DateTime         @default(now())
-  methode         MethodePaiement  @default(mobile_money)
-  statut          StatutPaiement   @default(en_attente)
-  transaction     String           @unique
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id_paiement    String          @id @default(uuid())
+  id_reservation String
+  id_user        String
+  montant        Decimal         @db.Decimal(10, 2)
+  date_paiement  DateTime        @default(now())
+  methode        MethodePaiement @default(mobile_money)
+  statut         StatutPaiement  @default(en_attente)
+  transaction    String          @unique
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-  reservation     Reservation      @relation(fields: [id_reservation], references: [id_reservation])
-  user            User             @relation(fields: [id_user], references: [id_user])
+  reservation Reservation @relation(fields: [id_reservation], references: [id_reservation])
+  user        User        @relation(fields: [id_user], references: [id_user])
+
   @@index([statut])
   @@map("paiements")
 }
 
 model VisiteSite {
-  id         String @id @default(uuid())
-  id_visite  String
-  id_site    String
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  id        String   @id @default(uuid())
+  id_visite String
+  id_site   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  visite     Visite           @relation(fields: [id_visite], references: [id_visite], onDelete: Cascade)
-  site       SiteTouristique  @relation(fields: [id_site], references: [id_site], onDelete: Cascade)
+  visite Visite          @relation(fields: [id_visite], references: [id_visite], onDelete: Cascade)
+  site   SiteTouristique @relation(fields: [id_site], references: [id_site], onDelete: Cascade)
 
   @@unique([id_visite, id_site])
   @@map("visite_sites")

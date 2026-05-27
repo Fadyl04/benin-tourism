@@ -1,0 +1,261 @@
+<!-- ================================================
+     ADMIN DASHBOARD — admin-dashboard.component.html
+     Layout : sidebar collapsible + top navbar fixe
+     ================================================ -->
+
+<div class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
+
+  <!-- ═══════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════ -->
+  <aside class="admin-sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-logo">
+        <img src="assets/img/logo.png" alt="Logo" onerror="this.style.display='none'" />
+        <div class="sidebar-logo-fallback">BJ</div>
+      </div>
+      <div class="sidebar-brand-text">
+        <span class="sidebar-brand-title">Bénin Tourisme</span>
+        <span class="sidebar-brand-sub">Administration</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      @for (group of navItems; track group.group) {
+        <div class="nav-group">
+          <span class="nav-group-label">{{ group.group }}</span>
+          @for (item of group.items; track item.id) {
+            <button
+              class="nav-item"
+              [class.active]="activeSection() === item.id"
+              (click)="setSection(item.id)"
+              [pTooltip]="sidebarCollapsed() ? item.label : ''"
+              tooltipPosition="right"
+            >
+              <i [class]="item.icon" class="nav-item-icon"></i>
+              <span class="nav-item-label">{{ item.label }}</span>
+              @if (item['badge']) {
+                <span class="nav-item-badge">{{ item['badge'] }}</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </nav>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <p-avatar label="MA" styleClass="sidebar-avatar" shape="circle" />
+        <div class="sidebar-user-info">
+          <span class="sidebar-user-name">Marc Agbokou</span>
+          <span class="sidebar-user-role">Super Admin</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN AREA
+  ═══════════════════════════════════════════ -->
+  <div class="admin-main">
+
+    <!-- TOP NAVBAR -->
+    <header class="admin-topbar">
+      <div class="topbar-left">
+        <button class="topbar-toggle" (click)="toggleSidebar()" pTooltip="Réduire le menu" tooltipPosition="bottom">
+          <i class="pi" [class.pi-bars]="sidebarCollapsed()" [class.pi-arrow-left]="!sidebarCollapsed()"></i>
+        </button>
+        <div class="topbar-breadcrumb">
+          <span class="breadcrumb-root">Admin</span>
+          <i class="pi pi-chevron-right"></i>
+          <span class="breadcrumb-current">Tableau de bord</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <button class="topbar-icon-btn" pTooltip="Rechercher" tooltipPosition="bottom">
+          <i class="pi pi-search"></i>
+        </button>
+        <button class="topbar-icon-btn" pTooltip="Notifications" tooltipPosition="bottom">
+          <i class="pi pi-bell"></i>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="topbar-icon-btn" pTooltip="Voir le site" tooltipPosition="bottom">
+          <i class="pi pi-external-link"></i>
+        </button>
+        <div class="topbar-divider"></div>
+        <div class="topbar-user">
+          <p-avatar label="MA" styleClass="topbar-avatar" shape="circle" />
+          <span class="topbar-user-name">Marc A.</span>
+          <i class="pi pi-chevron-down topbar-chevron"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="admin-content">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Tableau de bord</h1>
+          <p class="page-subtitle">Bienvenue, Marc. Voici un résumé de l'activité du jour.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn-outline-admin">
+            <i class="pi pi-download"></i>
+            Exporter
+          </button>
+          <button class="btn-primary-admin">
+            <i class="pi pi-plus"></i>
+            Nouveau site
+          </button>
+        </div>
+      </div>
+
+      <!-- ── KPI CARDS ── -->
+      <div class="kpi-grid">
+        @for (kpi of kpis; track kpi.label) {
+          <div class="kpi-card kpi-{{ kpi.color }}">
+            <div class="kpi-icon-wrap">
+              <i [class]="kpi.icon"></i>
+            </div>
+            <div class="kpi-body">
+              <span class="kpi-label">{{ kpi.label }}</span>
+              <span class="kpi-value">{{ kpi.value }}</span>
+              <span class="kpi-delta" [class.delta-up]="kpi.deltaUp" [class.delta-down]="!kpi.deltaUp">
+                <i class="pi" [class.pi-arrow-up-right]="kpi.deltaUp" [class.pi-arrow-down-right]="!kpi.deltaUp"></i>
+                {{ kpi.delta }} ce mois
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── CHARTS ROW ── -->
+      <div class="charts-row">
+
+        <!-- Visits chart -->
+        <div class="chart-card chart-card--wide">
+          <div class="chart-card-header">
+            <div>
+              <h3 class="chart-title">Évolution des visites</h3>
+              <p class="chart-subtitle">Comparaison 2025 / 2026</p>
+            </div>
+            <div class="chart-period-tabs">
+              <button class="period-tab active">Annuel</button>
+              <button class="period-tab">Mensuel</button>
+              <button class="period-tab">Hebdo</button>
+            </div>
+          </div>
+          <div class="chart-body">
+            <p-chart type="line" [data]="visitsChartData" [options]="visitsChartOptions" height="240px" />
+          </div>
+        </div>
+
+        <!-- Donut chart -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <h3 class="chart-title">Répartition</h3>
+              <p class="chart-subtitle">Par catégorie</p>
+            </div>
+          </div>
+          <div class="chart-body chart-body--center">
+            <p-chart type="doughnut" [data]="categoryChartData" [options]="categoryChartOptions" height="220px" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── TABLES ROW ── -->
+      <div class="tables-row">
+
+        <!-- Recent users -->
+        <div class="table-card">
+          <div class="table-card-header">
+            <h3 class="chart-title">Derniers utilisateurs</h3>
+            <button class="btn-link-admin">Voir tout <i class="pi pi-arrow-right"></i></button>
+          </div>
+          <p-table [value]="recentUsers" [scrollable]="true" styleClass="admin-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Utilisateur</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Inscrit le</th>
+                <th></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-user>
+              <tr>
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar-mini">{{ user.avatar }}</div>
+                    <div>
+                      <div class="user-name-cell">{{ user.name }}</div>
+                      <div class="user-email-cell">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="role-tag role-{{ user.role | lowercase }}">{{ user.role }}</span></td>
+                <td><p-tag [value]="user.status" [severity]="getStatusSeverity(user.status)" /></td>
+                <td class="cell-muted">{{ user.date }}</td>
+                <td>
+                  <div class="row-actions">
+                    <button class="row-action-btn" pTooltip="Modifier"><i class="pi pi-pencil"></i></button>
+                    <button class="row-action-btn row-action-btn--danger" pTooltip="Supprimer"><i class="pi pi-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Recent events -->
+        <div class="table-card">
+          <div class="table-card-header">
+            <h3 class="chart-title">Événements récents</h3>
+            <button class="btn-link-admin">Voir tout <i class="pi pi-arrow-right"></i></button>
+          </div>
+          <p-table [value]="recentEvents" [scrollable]="true" styleClass="admin-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Événement</th>
+                <th>Lieu</th>
+                <th>Statut</th>
+                <th>Visites</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-event>
+              <tr>
+                <td>
+                  <div class="event-name-cell">{{ event.name }}</div>
+                  <div class="event-date-cell">{{ event.date }}</div>
+                </td>
+                <td class="cell-muted">
+                  <i class="pi pi-map-marker" style="color:#0a3764; margin-right:4px; font-size:0.75rem;"></i>
+                  {{ event.lieu }}
+                </td>
+                <td><p-tag [value]="event.status" [severity]="getStatusSeverity(event.status)" /></td>
+                <td>
+                  <div class="visits-cell">
+                    <span class="visits-num">{{ event.visits | number }}</span>
+                    <p-progressBar [value]="(event.visits / 1500) * 100" [showValue]="false" styleClass="visits-bar" />
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
