@@ -1,6 +1,7 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -96,41 +97,112 @@ export class AuthService {
   }
 
   /**
-   * LOGIN
-   */
-  login(
-    email: string,
-    password: string
-  ): Observable<LoginResponse> {
+ * LOGIN
+ */
+login(
+  email: string,
+  password: string
+): Observable<LoginResponse> {
 
-    return this.http.post<LoginResponse>(
-      `${this.apiUrl}/login`,
-      { email, password },
-      this.httpOptions
-    ).pipe(
-      tap((response) => {
+  return this.http.post<LoginResponse>(
+    `${this.apiUrl}/login`,
+    { email, password },
+    this.httpOptions
+  ).pipe(
 
-        if (!response.success) return;
+    tap((response) => {
 
-        const user = response.data;
+      if (!response.success) {
+        return;
+      }
 
-        /**
-         * SAVE USER
-         */
-        this.storage.setObject('currentUser', user);
+      const user = response.data;
 
-        /**
-         * UPDATE STATE
-         */
-        this.currentUserSubject.next(user);
+      /**
+       * SAVE USER
+       */
+      this.storage.setObject(
+        'currentUser',
+        user
+      );
 
-        /**
-         * UPDATE CASL
-         */
-        this.abilityService.updateAbility([], user.role);
-      })
-    );
+      /**
+       * UPDATE STATE
+       */
+      this.currentUserSubject.next(user);
+
+      /**
+       * UPDATE CASL
+       */
+      this.abilityService.updateAbility(
+        [],
+        user.role
+      );
+
+      /**
+       * FIRST LOGIN
+       */
+      if (
+        user.firstLogin &&
+        (
+          user.role === 'admin' ||
+          user.role === 'prestataire'
+        )
+      ) {
+
+        this.router.navigate([
+          '/first-login'
+        ]);
+
+        return;
+      }
+
+      /**
+       * NORMAL REDIRECTION
+       */
+      this.redirectByRole(user.role);
+    })
+  );
+}
+
+/**
+ * REDIRECT USER
+ */
+redirectByRole(role: Role): void {
+
+  switch (role) {
+
+    case 'admin':
+
+      this.router.navigate([
+        '/admin/dashboard'
+      ]);
+
+      break;
+
+    case 'prestataire':
+
+      this.router.navigate([
+        '/prestataire/dashboard'
+      ]);
+
+      break;
+
+    case 'client':
+
+      this.router.navigate([
+        '/'
+      ]);
+
+      break;
+
+    default:
+
+      this.router.navigate([
+        '/'
+      ]);
   }
+}
 
   /**
    * LOGOUT
@@ -228,7 +300,13 @@ export class AuthService {
   /**
    * REGISTER PRESTATAIRE (Demande)
    */
-  registerPrestataire() {}
+  registerPrestataire( formData: FormData ): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/prestataires/register`,
+      formData
+    );
+  
+  }
 
  
 }

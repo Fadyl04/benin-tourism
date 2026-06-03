@@ -1,1 +1,156 @@
-<p>first-login works!</p>
+<p-toast position="top-right"></p-toast>
+
+<div class="first-login-wrapper">
+
+  <div class="first-login-card">
+
+    <!-- HEADER -->
+    <div class="first-login-header">
+
+      <div class="header-icon">
+        <i class="pi pi-shield"></i>
+      </div>
+
+      <h1 class="title">
+        Première connexion
+      </h1>
+
+      <p class="subtitle">
+        Pour sécuriser votre compte,
+        veuillez modifier votre mot de passe.
+      </p>
+
+    </div>
+
+    <!-- FORM -->
+    <form
+      class="first-login-form"
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+    >
+
+      <!-- PASSWORD -->
+      <div class="form-group">
+
+        <label for="newPassword">
+          Nouveau mot de passe
+        </label>
+
+        <div class="input-wrap">
+
+          <i class="pi pi-lock left-icon"></i>
+
+          <input
+            pInputText
+            id="newPassword"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="newPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            [class.input-error]="isInvalid('newPassword')"
+          />
+
+          <!-- TOGGLE -->
+          <button
+            type="button"
+            class="toggle-pwd"
+            (click)="showPassword = !showPassword"
+          >
+
+            <i
+              class="pi"
+              [ngClass]="showPassword ? 'pi-eye-slash' : 'pi-eye'"
+            ></i>
+
+          </button>
+
+        </div>
+
+        <small
+          class="field-error"
+          *ngIf="isInvalid('newPassword')"
+        >
+          {{ getError('newPassword') }}
+        </small>
+
+      </div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div class="form-group">
+
+        <label for="confirmPassword">
+          Confirmer le mot de passe
+        </label>
+
+        <div class="input-wrap">
+
+          <i class="pi pi-lock left-icon"></i>
+
+          <input
+            pInputText
+            id="confirmPassword"
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            [class.input-error]="
+              isInvalid('confirmPassword') ||
+              passwordMismatch
+            "
+          />
+
+          <!-- TOGGLE -->
+          <button
+            type="button"
+            class="toggle-pwd"
+            (click)="showConfirmPassword = !showConfirmPassword"
+          >
+
+            <i
+              class="pi"
+              [ngClass]="showConfirmPassword ? 'pi-eye-slash' : 'pi-eye'"
+            ></i>
+
+          </button>
+
+        </div>
+
+        <small
+          class="field-error"
+          *ngIf="isInvalid('confirmPassword')"
+        >
+          {{ getError('confirmPassword') }}
+        </small>
+
+        <small
+          class="field-error"
+          *ngIf="passwordMismatch"
+        >
+          Les mots de passe ne correspondent pas
+        </small>
+
+      </div>
+
+      <!-- BUTTON -->
+      <button
+        type="submit"
+        class="btn-submit"
+        [disabled]="loading"
+      >
+
+        <span *ngIf="!loading">
+          Modifier le mot de passe
+        </span>
+
+        <span *ngIf="loading">
+          <i class="pi pi-spin pi-spinner"></i>
+          Mise à jour...
+        </span>
+
+      </button>
+
+    </form>
+
+  </div>
+
+</div>

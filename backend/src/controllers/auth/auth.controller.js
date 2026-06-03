@@ -183,24 +183,26 @@ export const firstLoginChangePasswordController = async (req, res) => {
         const parsed = newPasswordSchema.safeParse(req.body);
 
         if (!parsed.success) {
-            return res.status(400).json({
-                success: false,
-                message: "Validation échouée",
-                errors: parsed.error.errors
-            });
-        }
-
-        await firstLoginChangePassword(id_user, parsed.data.newPassword);
-
-        return res.status(200).json({
-            success: true,
-            message: "Mot de passe mis à jour"
-        });
-
-    } catch (error) {
         return res.status(400).json({
             success: false,
-            message: error.message
+            message: "Validation échouée",
+            errors: parsed.error.errors
+        });
+        }
+
+        const result = await firstLoginChangePassword(
+        id_user,
+        parsed.data.newPassword
+        );
+
+        return res.status(200).json(result);
+
+    } catch (error) {
+        console.error('[CHANGE PASSWORD ERROR]', error);
+
+        return res.status(500).json({
+        success: false,
+        message: error.message
         });
     }
 };

@@ -1,0 +1,540 @@
+<p-toast position="top-right" />
+
+<div class="rp-wrapper">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SIDEBAR                                -->
+  <!-- ═══════════════════════════════════════ -->
+  <aside class="rp-sidebar">
+    <div class="rp-sidebar__content">
+
+      <!-- Logo -->
+      <div class="rp-sidebar__logo">
+        <div class="rp-sidebar__logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="20" fill="#e8a020"/>
+            <path d="M12 26c2-4 5-7 8-9 3 2 6 5 8 9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="20" cy="14" r="4" fill="#fff" fill-opacity=".9"/>
+          </svg>
+        </div>
+        <div>
+          <p class="rp-sidebar__brand">Tourisme Bénin</p>
+          <p class="rp-sidebar__slogan">Explorez. Vivez. Partagez.</p>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="rp-sidebar__title-block">
+        <h1 class="rp-sidebar__title">Devenir<br/>Prestataire</h1>
+        <p class="rp-sidebar__desc">
+          Rejoignez notre communauté<br/>de professionnels du tourisme
+        </p>
+      </div>
+
+      <!-- Steps list -->
+      <div class="rp-sidebar__steps">
+        @for (step of steps; track step.index) {
+          <div class="rp-sidebar__step"
+            [class.rp-sidebar__step--active]="activeStep === step.index"
+            [class.rp-sidebar__step--done]="activeStep > step.index">
+            <div class="rp-sidebar__step-circle">
+              @if (activeStep > step.index) {
+                <svg viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else {
+                {{ step.index + 1 }}
+              }
+            </div>
+            <div class="rp-sidebar__step-info">
+              <span class="rp-sidebar__step-title">{{ step.title }}</span>
+              <span class="rp-sidebar__step-desc">{{ step.desc }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Progress ring -->
+      <div class="rp-sidebar__progress">
+        <p class="rp-sidebar__progress-label">Votre progression</p>
+        <div class="rp-sidebar__ring-wrap">
+          <svg viewBox="0 0 140 140" class="rp-sidebar__ring-svg">
+            <circle class="rp-ring-track" cx="70" cy="70" r="58"/>
+            <circle
+              class="rp-ring-fill"
+              cx="70" cy="70" r="58"
+              [style.stroke-dashoffset]="364.4 - (progress / 100) * 364.4"
+            />
+          </svg>
+          <div class="rp-sidebar__ring-inner">
+            <span class="rp-sidebar__ring-pct">{{ progress | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Background image overlay -->
+    <div class="rp-sidebar__overlay">
+      <img
+        src="https://images.pexels.com/photos/1320686/pexels-photo-1320686.jpeg?auto=compress&cs=tinysrgb&w=600"
+        alt="Bénin paysage"
+        class="rp-sidebar__bg-img"
+      />
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- MAIN                                   -->
+  <!-- ═══════════════════════════════════════ -->
+  <main class="rp-main">
+
+    <!-- ─── SUCCESS STATE ─── -->
+    @if (submitted) {
+      <div class="rp-success">
+        <div class="rp-success__icon">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="32" fill="#22c55e"/>
+            <path d="M18 32l10 10 18-18" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="rp-success__title">Demande envoyée !</h2>
+        <p class="rp-success__desc">
+          Votre dossier a été soumis avec succès.<br/>
+          Il sera examiné par notre équipe.<br/>
+          Vous serez notifié par email.
+        </p>
+        <div class="rp-success__checklist">
+          <p class="rp-success__checklist-title">Que se passe-t-il ensuite ?</p>
+          <ul>
+            @for (item of ['Vérification de vos documents', 'Validation par l\'administrateur', 'Activation de votre compte']; track item) {
+              <li>
+                <svg class="rp-check-ico" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="10" r="10" fill="#22c55e"/>
+                  <path d="M6 10l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ item }}
+              </li>
+            }
+          </ul>
+        </div>
+        <button class="rp-btn rp-btn--primary rp-btn--full" (click)="router.navigate(['/'])">
+          Retour à l'accueil
+          <svg viewBox="0 0 24 24" fill="none" class="rp-btn-icon">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2"/>
+            <polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+    <!-- ─── FORM STATE ─── -->
+    @if (!submitted) {
+      <div class="rp-form-area">
+
+        <!-- Pills -->
+        <div class="rp-nav-header">
+          <div class="rp-step-ring-wrap">
+            <svg viewBox="0 0 90 90" class="rp-step-ring-svg">
+              <circle class="rp-ring-track" cx="45" cy="45" r="38"/>
+              <circle
+                class="rp-ring-fill"
+                cx="45" cy="45" r="38"
+                [style.stroke-dashoffset]="238.8 - (progress / 100) * 238.8"
+              />
+            </svg>
+            <div class="rp-step-ring-inner">
+              <span class="rp-step-ring-counter">{{ activeStep + 1 }}/{{ steps.length }}</span>
+            </div>
+          </div>
+
+          <div class="rp-pills">
+            @for (s of steps; track s.index) {
+              <button
+                type="button"
+                class="rp-pill"
+                [class.rp-pill--active]="activeStep === s.index"
+                [class.rp-pill--done]="activeStep > s.index"
+                [disabled]="activeStep < s.index"
+                (click)="goToStep(s.index)"
+              >
+                @if (activeStep > s.index) {
+                  <svg class="rp-pill-check" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                } @else {
+                  <span class="rp-pill-num">{{ s.index + 1 }}</span>
+                }
+                {{ s.title }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form [formGroup]="form" class="rp-form" (ngSubmit)="submit()">
+
+          <!-- ── STEP 0 : Informations personnelles ── -->
+          @if (activeStep === 0) {
+            <div class="rp-step">
+              <div class="rp-step__header">
+                <h2>{{ steps[0].title }}</h2>
+                <p>{{ steps[0].subtitle }}</p>
+              </div>
+
+              <!-- Photo de profil -->
+              <div class="rp-profile-photo-section">
+                @if (profileImagePreview) {
+                  <div class="rp-profile-photo-preview">
+                    <img [src]="profileImagePreview" alt="Photo de profil" />
+                    <button type="button" class="rp-profile-photo-edit" (click)="removeProfileImage()">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                } @else {
+                  <div class="rp-profile-photo-upload">
+                    <div class="rp-profile-photo-icon">
+                      <svg viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="9" r="4" stroke="currentColor" stroke-width="2"/>
+                        <path d="M4 20c0-3.314 3.58-6 8-6s8 2.686 8 6" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </div>
+                    <p class="rp-profile-photo-label">Photo de profil</p>
+                    <p class="rp-profile-photo-hint">Optionnel — Ajouter une photo</p>
+                    <p-fileUpload
+                      mode="basic"
+                      chooseLabel=" "
+                      accept="image/*"
+                      [maxFileSize]="2097152"
+                      (onSelect)="onProfileImageUpload($event)"
+                      styleClass="rp-file-upload-profile"
+                    />
+                  </div>
+                }
+              </div>
+
+              <div class="rp-grid rp-grid--2">
+                <div class="rp-field">
+                  <label class="rp-label">Nom <span class="rp-required">*</span></label>
+                  <input pInputText formControlName="nom" placeholder="Votre nom"
+                    class="rp-input" [class.rp-input--error]="isInvalid('nom')" />
+                  @if (isInvalid('nom')) {
+                    <small class="rp-error">Nom requis (2 caractères min.)</small>
+                  }
+                </div>
+                <div class="rp-field">
+                  <label class="rp-label">Prénom <span class="rp-required">*</span></label>
+                  <input pInputText formControlName="prenom" placeholder="Votre prénom"
+                    class="rp-input" [class.rp-input--error]="isInvalid('prenom')" />
+                  @if (isInvalid('prenom')) {
+                    <small class="rp-error">Prénom requis (2 caractères min.)</small>
+                  }
+                </div>
+              </div>
+
+              <div class="rp-field">
+                <label class="rp-label">Email <span class="rp-required">*</span></label>
+                <input pInputText formControlName="email" type="email" placeholder="exemple@email.com"
+                  class="rp-input" [class.rp-input--error]="isInvalid('email')" />
+                @if (isInvalid('email')) {
+                  <small class="rp-error">Adresse email invalide</small>
+                }
+              </div>
+
+              <div class="rp-field">
+                <label class="rp-label">Téléphone <span class="rp-required">*</span></label>
+                <input pInputText formControlName="telephone" placeholder="+229 01 23 45 67 89"
+                  class="rp-input" [class.rp-input--error]="isInvalid('telephone')" />
+                @if (isInvalid('telephone')) {
+                  <small class="rp-error">Numéro de téléphone invalide</small>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ── STEP 1 : Coordonnées ── -->
+          @if (activeStep === 1) {
+            <div class="rp-step">
+              <div class="rp-step__header">
+                <h2>{{ steps[1].title }}</h2>
+                <p>{{ steps[1].subtitle }}</p>
+              </div>
+
+              <div class="rp-grid rp-grid--2">
+                <!-- Genre : valeurs cohérentes avec enum Prisma -->
+                <div class="rp-field">
+                  <label class="rp-label">Genre <span class="rp-required">*</span></label>
+                  <select formControlName="genre" class="rp-select"
+                    [class.rp-input--error]="isInvalid('genre')">
+                    <option value="">Sélectionnez</option>
+                    @for (g of genres; track g.value) {
+                      <option [value]="g.value">{{ g.label }}</option>
+                    }
+                  </select>
+                  @if (isInvalid('genre')) {
+                    <small class="rp-error">Genre requis</small>
+                  }
+                </div>
+
+                <!-- Date naissance : p-datePicker retourne un objet Date -->
+                <div class="rp-field">
+                  <label class="rp-label">Date de naissance <span class="rp-required">*</span></label>
+                  <p-datePicker
+                    formControlName="date_naissance"
+                    [showIcon]="true"
+                    dateFormat="dd/mm/yy"
+                    placeholder="jj/mm/aaaa"
+                    styleClass="rp-datepicker"
+                    [maxDate]="today"
+                  />
+                  @if (isInvalid('date_naissance')) {
+                    <small class="rp-error">Date de naissance requise</small>
+                  }
+                </div>
+              </div>
+
+              <div class="rp-field">
+                <label class="rp-label">Mot de passe <span class="rp-required">*</span></label>
+                <p-password
+                  formControlName="password"
+                  [toggleMask]="true"
+                  placeholder="Minimum 8 caractères"
+                  [feedback]="true"
+                  styleClass="rp-password"
+                  [inputStyleClass]="isInvalid('password') ? 'rp-input rp-input--error' : 'rp-input'"
+                />
+                @if (isInvalid('password')) {
+                  <small class="rp-error">Mot de passe requis (8 caractères min.)</small>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ── STEP 2 : Activité professionnelle ── -->
+          @if (activeStep === 2) {
+            <div class="rp-step">
+              <div class="rp-step__header">
+                <h2>{{ steps[2].title }}</h2>
+                <p>{{ steps[2].subtitle }}</p>
+              </div>
+
+              <!-- Type d'activité — cohérent avec enum Prisma : guide | hotel | transport -->
+              <div class="rp-field">
+                <label class="rp-label">Type d'activité <span class="rp-required">*</span></label>
+                <div class="rp-type-cards">
+                  @for (t of activityTypes; track t.value) {
+                    <button
+                      type="button"
+                      class="rp-type-card"
+                      [class.rp-type-card--active]="form.get('type')?.value === t.value"
+                      (click)="form.patchValue({ type: t.value }); form.get('type')?.markAsTouched()"
+                    >
+                      <span class="rp-type-card__icon">{{ t.icon }}</span>
+                      <span class="rp-type-card__label">{{ t.label }}</span>
+                      <span class="rp-type-card__sub">{{ t.sub }}</span>
+                      @if (form.get('type')?.value === t.value) {
+                        <div class="rp-type-card__check">
+                          <svg viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="8" fill="#e8a020"/>
+                            <path d="M4 8l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                      }
+                    </button>
+                  }
+                </div>
+                @if (isInvalid('type')) {
+                  <small class="rp-error">Sélectionnez un type d'activité</small>
+                }
+              </div>
+
+              <div class="rp-grid rp-grid--2">
+                <div class="rp-field">
+                  <label class="rp-label">Ville <span class="rp-required">*</span></label>
+                  <input pInputText formControlName="ville" placeholder="Votre ville"
+                    class="rp-input" [class.rp-input--error]="isInvalid('ville')" />
+                  @if (isInvalid('ville')) {
+                    <small class="rp-error">Ville requise</small>
+                  }
+                </div>
+                <div class="rp-field">
+                  <label class="rp-label">Années d'expérience <span class="rp-required">*</span></label>
+                  <input pInputText type="number" formControlName="annee_experience"
+                    placeholder="Ex : 5" min="0" max="60"
+                    class="rp-input" [class.rp-input--error]="isInvalid('annee_experience')" />
+                  @if (isInvalid('annee_experience')) {
+                    <small class="rp-error">Valeur requise (0–60)</small>
+                  }
+                </div>
+              </div>
+
+              <div class="rp-field">
+                <label class="rp-label">Adresse <span class="rp-required">*</span></label>
+                <input pInputText formControlName="adresse" placeholder="Votre adresse complète"
+                  class="rp-input" [class.rp-input--error]="isInvalid('adresse')" />
+                @if (isInvalid('adresse')) {
+                  <small class="rp-error">Adresse requise</small>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- ── STEP 3 : Documents & finalisation ── -->
+          @if (activeStep === 3) {
+            <div class="rp-step">
+              <div class="rp-step__header">
+                <h2>{{ steps[3].title }}</h2>
+                <p>{{ steps[3].subtitle }}</p>
+              </div>
+
+              <!-- Document justificatif -->
+              <div class="rp-field">
+                <label class="rp-label">Justificatif d'identité ou d'activité <span class="rp-required">*</span></label>
+                <div class="rp-upload-zone" [class.rp-upload-zone--filled]="!!documentFile">
+                  <div class="rp-upload-zone__inner">
+                    <svg class="rp-upload-zone__icon" viewBox="0 0 48 48" fill="none">
+                      <path d="M24 32V16M17 23l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    @if (!documentFile) {
+                      <p class="rp-upload-zone__text">
+                        Déposez votre fichier ici<br/>
+                        <span class="rp-upload-zone__link">ou cliquez pour parcourir</span>
+                      </p>
+                    } @else {
+                      <p class="rp-upload-zone__text">
+                        <strong>{{ documentFile.name }}</strong>
+                      </p>
+                    }
+                    <p class="rp-upload-zone__hint">PDF, JPG, PNG (max. 5 Mo)</p>
+                  </div>
+                  <p-fileUpload
+                    mode="basic"
+                    chooseLabel=" "
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    [maxFileSize]="5242880"
+                    (onSelect)="onDocumentUpload($event)"
+                    styleClass="rp-file-upload-overlay"
+                  />
+                </div>
+                @if (isInvalid('document_justificatif')) {
+                  <small class="rp-error">Document justificatif requis</small>
+                }
+              </div>
+
+              <!-- Photo de l'activité (optionnel) -->
+              <div class="rp-field">
+                <label class="rp-label">
+                  Photo de votre activité
+                  <span class="rp-optional">(optionnel)</span>
+                </label>
+                <div class="rp-image-upload">
+                  @if (imagePreview) {
+                    <div class="rp-image-upload__preview">
+                      <img [src]="imagePreview" alt="Aperçu" />
+                      <button type="button" class="rp-image-upload__remove" (click)="removeImage()">
+                        <svg viewBox="0 0 24 24" fill="none">
+                          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="rp-image-upload__add">
+                      <p-fileUpload
+                        mode="basic"
+                        chooseLabel="Ajouter une photo"
+                        accept="image/*"
+                        [maxFileSize]="2097152"
+                        (onSelect)="onImageUpload($event)"
+                        styleClass="rp-file-upload-img"
+                      />
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- CGU -->
+              <div class="rp-cgu" [class.rp-cgu--error]="isInvalid('accept')">
+                <button type="button" class="rp-cgu__btn" (click)="toggleAccept()">
+                  <span class="rp-checkbox" [class.rp-checkbox--checked]="form.get('accept')?.value">
+                    @if (form.get('accept')?.value) {
+                      <svg viewBox="0 0 12 12" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    }
+                  </span>
+                  <span class="rp-cgu__text">
+                    J'accepte les
+                    <a href="/conditions" target="_blank" class="rp-link" (click)="$event.stopPropagation()">conditions d'utilisation</a>
+                    et la
+                    <a href="/confidentialite" target="_blank" class="rp-link" (click)="$event.stopPropagation()">politique de confidentialité</a>
+                  </span>
+                </button>
+                @if (isInvalid('accept')) {
+                  <small class="rp-error">Vous devez accepter les conditions</small>
+                }
+              </div>
+
+              <!-- Récapitulatif délai -->
+              <div class="rp-info-box">
+                <svg viewBox="0 0 20 20" fill="none" class="rp-info-box__icon">
+                  <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M10 9v5M10 7h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                <p>
+                  Votre dossier sera examiné sous <strong>48 à 72h</strong>.
+                  Vous recevrez une confirmation par email à l'adresse renseignée.
+                </p>
+              </div>
+
+            </div>
+          }
+
+        </form>
+
+        <!-- Navigation buttons -->
+        <div class="rp-nav-btns">
+          @if (activeStep === 0) {
+            <button type="button" class="rp-btn rp-btn--ghost" (click)="router.navigate(['/'])">
+              Annuler
+            </button>
+          }
+          @if (activeStep > 0) {
+            <button type="button" class="rp-btn rp-btn--ghost" (click)="prevStep()">
+              <svg viewBox="0 0 24 24" fill="none" class="rp-btn-icon rp-btn-icon--left">
+                <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Retour
+            </button>
+          }
+
+          @if (activeStep < steps.length - 1) {
+            <button type="button" class="rp-btn rp-btn--primary" (click)="nextStep()">
+              Continuer
+              <svg viewBox="0 0 24 24" fill="none" class="rp-btn-icon">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          }
+          @if (activeStep === steps.length - 1) {
+            <button type="button" class="rp-btn rp-btn--primary" [disabled]="loading" (click)="submit()">
+              @if (!loading) {
+                Soumettre ma demande
+                <svg viewBox="0 0 24 24" fill="none" class="rp-btn-icon">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              } @else {
+                <span class="rp-spinner"></span>
+              }
+            </button>
+          }
+        </div>
+
+      </div>
+    }
+
+  </main>
+
+</div>

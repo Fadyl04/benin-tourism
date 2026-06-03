@@ -1,8 +1,6 @@
 import transporter from "../config/mail.config.js";
 
-/**
- * Réinitialisation du mot de passe
- */
+
 /**
  * Réinitialisation du mot de passe
  */
@@ -17,84 +15,214 @@ export const sendResetPasswordEmail = async (
 
     to: toEmail,
 
-    subject: "Réinitialisation de votre mot de passe",
+    subject:
+      "Réinitialisation de votre mot de passe — Tourisme Bénin",
 
     html: `
-      <div style="
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: auto;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      ">
+      <!DOCTYPE html>
+      <html lang="fr">
 
-        <!-- HEADER -->
-        <div style="
-          background: linear-gradient(90deg, #008751, #FCD116, #E8112D);
-          padding: 20px;
-          color: white;
-          text-align: center;
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Réinitialisation de mot de passe</title>
+        </head>
+
+        <body style="
+          margin:0;
+          padding:0;
+          background:#f4f6fa;
+          font-family:'Helvetica Neue', Arial, sans-serif;
         ">
-          <h2 style="margin: 0;">
-            Tourisme Bénin
-          </h2>
-        </div>
 
-        <!-- CONTENT -->
-        <div style="padding: 20px; color: #333;">
-
-          <p>Bonjour,</p>
-
-          <p>
-            Vous avez demandé la réinitialisation
-            de votre mot de passe.
-          </p>
-
-          <p>
-            Cliquez sur le bouton ci-dessous
-            pour définir un nouveau mot de passe :
-          </p>
-
-          <div style="text-align: center; margin: 30px 0;">
-
-            <a
-              href="${resetLink}"
-              style="
-                display: inline-block;
-                padding: 12px 24px;
-                background: #008751;
-                color: white;
-                border-radius: 5px;
-                text-decoration: none;
-                font-weight: bold;
-              "
-            >
-              Réinitialiser mon mot de passe
-            </a>
-
+          <!-- PREHEADER (important pour Gmail) -->
+          <div style="
+            display:none;
+            max-height:0;
+            overflow:hidden;
+            opacity:0;
+            color:transparent;
+          ">
+            Réinitialisez votre mot de passe Tourisme Bénin en toute sécurité.
           </div>
 
-          <p>
-            ⚠️ Ce lien expire dans
-            <strong>15 minutes</strong>.
-          </p>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fa; padding:40px 16px;">
+            <tr>
+              <td align="center">
 
-          <hr style="margin: 20px 0;">
+                <!-- CARD -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="
+                  max-width:580px;
+                  background:#ffffff;
+                  border-radius:12px;
+                  overflow:hidden;
+                  box-shadow:0 8px 32px rgba(10,55,100,0.12);
+                ">
 
-          <p style="font-size: 12px; color: #777;">
-            Si vous n'êtes pas à l'origine
-            de cette demande,
-            vous pouvez ignorer cet email.
-          </p>
+                  <!-- HEADER -->
+                  <tr>
+                    <td style="background:#0a3764; padding:0;">
 
-          <p style="font-size: 12px; color: #777;">
-            © 2026 Bénin Tourisme
-          </p>
+                      <!-- GOLD BAR -->
+                      <div style="height:3px; background:linear-gradient(90deg,#FFBE00,#e6aa00);"></div>
 
-        </div>
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" style="padding:24px 28px 20px; text-align:center;">
 
-      </div>
+                            <div style="
+                              color:#ffffff;
+                              font-size:13px;
+                              font-weight:700;
+                              text-transform:uppercase;
+                              letter-spacing:0.05em;
+                              text-align:center;
+                            ">
+                              Tourisme Bénin
+                            </div>
+
+                            <div style="
+                              color:rgba(255,190,0,0.85);
+                              font-size:10px;
+                              font-weight:500;
+                              text-transform:uppercase;
+                              letter-spacing:0.1em;
+                              margin-top:2px;
+                              text-align:center;
+                            ">
+                              Sécurité du compte
+                            </div>
+
+                          </td>
+                        </tr>
+                      </table>
+
+                    </td>
+                  </tr>
+
+                  <!-- CONTENT -->
+                  <tr>
+                    <td style="padding:28px; color:#1a1a1a;">
+
+                      <p style="margin:0 0 14px; font-size:14px; line-height:1.7; color:#2a2a2a;">
+                        Bonjour,
+                      </p>
+
+                      <p style="margin:0 0 14px; font-size:14px; line-height:1.7; color:#2a2a2a;">
+                        Nous avons reçu une demande de réinitialisation du mot de passe associé à votre compte
+                        <strong>Tourisme Bénin</strong>.
+                      </p>
+
+                      <p style="margin:0 0 24px; font-size:14px; line-height:1.7; color:#2a2a2a;">
+                        Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe :
+                      </p>
+
+                      <!-- BUTTON -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td align="center" style="padding:4px 0 28px;">
+
+                            <a href="${resetLink}"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style="
+                                display:inline-block;
+                                mso-padding-alt:0;
+                                padding:13px 32px;
+                                background:#008559;
+                                color:#ffffff;
+                                border-radius:7px;
+                                text-decoration:none;
+                                font-size:14px;
+                                font-weight:700;
+                                letter-spacing:0.04em;
+                                box-shadow:0 4px 16px rgba(0,133,89,0.3);
+                              ">
+                              Réinitialiser mon mot de passe →
+                            </a>
+
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- WARNING -->
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                        <tr>
+                          <td style="
+                            background:rgba(255,190,0,0.12);
+                            border:1px solid rgba(255,190,0,0.35);
+                            border-left:4px solid #FFBE00;
+                            border-radius:7px;
+                            padding:12px 16px;
+                          ">
+
+                            <table role="presentation" cellpadding="0" cellspacing="0">
+                              <tr>
+                                <td style="vertical-align:top; padding-right:8px; font-size:16px;">
+                                  ⚠️
+                                </td>
+                                <td style="font-size:13px; color:#0a3764; line-height:1.6;">
+                                  Ce lien est valable pendant <strong>15 minutes</strong> uniquement.
+                                  Après expiration, vous devrez effectuer une nouvelle demande.
+                                </td>
+                              </tr>
+                            </table>
+
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- FALLBACK -->
+                      <p style="font-size:12px; color:#7a8ea8; line-height:1.6; margin:0 0 6px;">
+                        Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :
+                      </p>
+
+                      <p style="
+                        font-size:11px;
+                        color:#0a3764;
+                        word-break:break-all;
+                        background:#f4f6fa;
+                        padding:10px 12px;
+                        border-radius:5px;
+                        margin:0;
+                      ">
+                        ${resetLink}
+                      </p>
+
+                    </td>
+                  </tr>
+
+                  <!-- DIVIDER -->
+                  <tr>
+                    <td style="padding:0 28px;">
+                      <div style="height:1px; background:rgba(10,55,100,0.08);"></div>
+                    </td>
+                  </tr>
+
+                  <!-- FOOTER -->
+                  <tr>
+                    <td style="padding:18px 28px 24px; background:#fafbfd;">
+
+                      <p style="margin:0; font-size:12px; color:#7a8ea8; line-height:1.6;">
+                        Si vous n'êtes pas à l'origine de cette demande, ignorez cet email — votre mot de passe restera inchangé.
+                      </p>
+
+                      <p style="margin-top:12px; font-size:11px; color:#b0bec5;">
+                        © 2026 Tourisme Bénin — Tous droits réservés
+                      </p>
+
+                    </td>
+                  </tr>
+
+                </table>
+                <!-- END CARD -->
+
+              </td>
+            </tr>
+          </table>
+
+        </body>
+      </html>
     `
   });
 };

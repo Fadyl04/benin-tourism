@@ -156,9 +156,9 @@ export class AuthComponent implements OnInit {
 
     this.loginLoading = true;
 
-    const email    = this.loginForm.value.email.trim().toLowerCase();
+    const email = this.loginForm.value.email.trim().toLowerCase();
     const password = this.loginForm.value.password;
-    const remember = this.loginForm.value.remember; // ← récupéré
+    const remember = this.loginForm.value.remember;
 
     this.authService.login(email, password).subscribe({
       next: (response: LoginResponse) => {
@@ -173,7 +173,9 @@ export class AuthComponent implements OnInit {
           return;
         }
 
-        // ── Se souvenir de moi ──
+        const user = response.data;
+
+        // remember me
         if (remember) {
           localStorage.setItem('remembered_email', email);
         } else {
@@ -183,22 +185,51 @@ export class AuthComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Connexion réussie',
-          detail: `Bienvenue ${response.data.prenom} !`
+          detail: `Bienvenue ${user.prenom} !`
         });
 
         this.showLogin = false;
         this.onLoginClose();
 
-        const role = response.data.role;
-        setTimeout(() => {
-          if (role === 'admin')            this.router.navigate(['/admin']);
-          else if (role === 'prestataire') this.router.navigate(['/prestataire']);
-          else                             this.router.navigate(['/client']);
-        }, 800);
+        /**
+         * =========================
+         * RÈGLE MÉTIER UNIQUE
+         * =========================
+         */
+
+        // CAS 1 + CAS 2 : admin / prestataire
+        if (user.role === 'admin' || user.role === 'prestataire') {
+
+          if (user.firstLogin) {
+
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Sécurité',
+              detail: 'Veuillez modifier votre mot de passe avant de continuer'
+            });
+
+            setTimeout(() => {
+              this.router.navigate(['/change-password']);
+            }, 800);
+
+            return;
+          }
+
+          // second login
+          setTimeout(() => {
+            this.router.navigate(['/dashboard']);
+          }, 500);
+
+          return;
+        }
+
+        // CAS 3 : client (jamais firstLogin)
+        this.router.navigate(['/client']);
       },
 
       error: (err: any) => {
         this.loginLoading = false;
+
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur de connexion',

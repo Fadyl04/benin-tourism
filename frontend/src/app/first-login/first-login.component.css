@@ -1,0 +1,251 @@
+/* ===================================
+   WRAPPER
+=================================== */
+
+.first-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(10, 55, 100, 0.06),
+      rgba(255, 190, 0, 0.05)
+    );
+}
+
+/* ===================================
+   CARD
+=================================== */
+
+.first-login-card {
+  width: 100%;
+  max-width: 430px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 25px 60px rgba(10, 55, 100, 0.14);
+  border: 1px solid rgba(10, 55, 100, 0.08);
+}
+
+/* ===================================
+   HEADER
+=================================== */
+
+.first-login-header {
+  background: #0a3764;
+  color: #ffffff;
+  text-align: center;
+  padding: 2rem 1.6rem;
+  position: relative;
+}
+
+.first-login-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background:
+    linear-gradient(
+      90deg,
+      #FFBE00,
+      #e2a800
+    );
+}
+
+.header-icon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-icon i {
+  font-size: 1.4rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  opacity: 0.82;
+  line-height: 1.5;
+}
+
+/* ===================================
+   FORM
+=================================== */
+
+.first-login-form {
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.form-group label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ===================================
+   INPUT
+=================================== */
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.left-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: rgba(10, 55, 100, 0.45);
+  font-size: 0.9rem;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 0.82rem 3rem 0.82rem 2.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(10, 55, 100, 0.14);
+  font-size: 0.92rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input-wrap input:focus {
+  border-color: #0a3764;
+  box-shadow:
+    0 0 0 3px rgba(10, 55, 100, 0.08);
+}
+
+.input-wrap input::placeholder {
+  color: rgba(10, 55, 100, 0.28);
+}
+
+/* ===================================
+   TOGGLE PASSWORD
+=================================== */
+
+.toggle-pwd {
+  position: absolute;
+  right: 0.65rem;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a3764;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-pwd:hover {
+  background: rgba(10, 55, 100, 0.08);
+}
+
+.toggle-pwd i {
+  font-size: 0.9rem;
+}
+
+/* ===================================
+   ERROR
+=================================== */
+
+.input-error {
+  border-color: #e74c3c !important;
+  box-shadow:
+    0 0 0 3px rgba(231, 76, 60, 0.08) !important;
+}
+
+.field-error {
+  color: #e74c3c;
+  font-size: 0.72rem;
+  margin-left: 0.15rem;
+}
+
+/* ===================================
+   BUTTON
+=================================== */
+
+.btn-submit {
+  width: 100%;
+  padding: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  background: #0a3764;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: 0.4rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: #072c50;
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 25px rgba(10, 55, 100, 0.22);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===================================
+   RESPONSIVE
+=================================== */
+
+@media (max-width: 520px) {
+
+  .first-login-wrapper {
+    padding: 1rem;
+  }
+
+  .first-login-card {
+    border-radius: 12px;
+  }
+
+  .first-login-form {
+    padding: 1.4rem;
+  }
+
+  .title {
+    font-size: 1.45rem;
+  }
+}

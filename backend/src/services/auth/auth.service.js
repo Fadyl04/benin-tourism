@@ -199,17 +199,26 @@ export const logoutUserService = async (user) => {
 export const firstLoginChangePassword = async (id_user, newPassword) => {
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  await prisma.user.update({
+  const updatedUser = await prisma.user.update({
     where: { id_user },
     data: {
       password: hashedPassword,
       firstLogin: false
+    },
+    select: {
+      id_user: true,
+      nom: true,
+      prenom: true,
+      email: true,
+      role: true,
+      firstLogin: true
     }
   });
 
   return {
     success: true,
-    message: "Mot de passe mis à jour avec succès"
+    message: "Mot de passe mis à jour avec succès",
+    data: updatedUser
   };
 };
 
