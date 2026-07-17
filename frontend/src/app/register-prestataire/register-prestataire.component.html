@@ -132,7 +132,7 @@
     @if (!submitted) {
       <div class="rp-form-area">
 
-        <!-- Pills -->
+        <!-- Pills + mini ring -->
         <div class="rp-nav-header">
           <div class="rp-step-ring-wrap">
             <svg viewBox="0 0 90 90" class="rp-step-ring-svg">
@@ -171,10 +171,10 @@
           </div>
         </div>
 
-        <!-- Form -->
+        <!-- Form card -->
         <form [formGroup]="form" class="rp-form" (ngSubmit)="submit()">
 
-          <!-- ── STEP 0 : Informations personnelles ── -->
+          <!-- ══════════ STEP 0 : Informations personnelles ══════════ -->
           @if (activeStep === 0) {
             <div class="rp-step">
               <div class="rp-step__header">
@@ -186,15 +186,17 @@
               <div class="rp-profile-photo-section">
                 @if (profileImagePreview) {
                   <div class="rp-profile-photo-preview">
-                    <img [src]="profileImagePreview" alt="Photo de profil" />
-                    <button type="button" class="rp-profile-photo-edit" (click)="removeProfileImage()">
+                    <div class="rp-profile-photo-preview__circle">
+                      <img [src]="profileImagePreview" alt="Photo de profil" />
+                    </div>
+                    <button type="button" class="rp-profile-photo-edit" (click)="removeProfileImage()" title="Supprimer la photo">
                       <svg viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                       </svg>
                     </button>
                   </div>
                 } @else {
-                  <div class="rp-profile-photo-upload">
+                  <div class="rp-profile-photo-upload" (click)="profileInput.click()">
                     <div class="rp-profile-photo-icon">
                       <svg viewBox="0 0 24 24" fill="none">
                         <circle cx="12" cy="9" r="4" stroke="currentColor" stroke-width="2"/>
@@ -203,50 +205,64 @@
                     </div>
                     <p class="rp-profile-photo-label">Photo de profil</p>
                     <p class="rp-profile-photo-hint">Optionnel — Ajouter une photo</p>
-                    <p-fileUpload
-                      mode="basic"
-                      chooseLabel=" "
+
+                    <input #profileInput type="file" hidden
                       accept="image/*"
-                      [maxFileSize]="2097152"
-                      (onSelect)="onProfileImageUpload($event)"
-                      styleClass="rp-file-upload-profile"
-                    />
+                      (click)="$any($event.target).value = null"
+                      (change)="onProfileImageUpload($event)" />
                   </div>
                 }
               </div>
-
+              
               <div class="rp-grid rp-grid--2">
+                <!-- Nom -->
                 <div class="rp-field">
                   <label class="rp-label">Nom <span class="rp-required">*</span></label>
-                  <input pInputText formControlName="nom" placeholder="Votre nom"
-                    class="rp-input" [class.rp-input--error]="isInvalid('nom')" />
+                  <div class="rp-input-wrap">
+                    <i class="pi pi-user"></i>
+                    <input pInputText formControlName="nom" placeholder="AGOSSOU" type="text"
+                      class="rp-input" [class.rp-input--error]="isInvalid('nom')" />
+                  </div>
                   @if (isInvalid('nom')) {
                     <small class="rp-error">Nom requis (2 caractères min.)</small>
                   }
                 </div>
+
+                <!-- Prénom -->
                 <div class="rp-field">
                   <label class="rp-label">Prénom <span class="rp-required">*</span></label>
-                  <input pInputText formControlName="prenom" placeholder="Votre prénom"
-                    class="rp-input" [class.rp-input--error]="isInvalid('prenom')" />
+                  <div class="rp-input-wrap">
+                    <i class="pi pi-user"></i>
+                    <input pInputText formControlName="prenom" placeholder="Kofi" type="text"
+                      class="rp-input" [class.rp-input--error]="isInvalid('prenom')" />
+                  </div>
                   @if (isInvalid('prenom')) {
                     <small class="rp-error">Prénom requis (2 caractères min.)</small>
                   }
                 </div>
               </div>
 
+              <!-- Adresse e-mail -->
               <div class="rp-field">
-                <label class="rp-label">Email <span class="rp-required">*</span></label>
-                <input pInputText formControlName="email" type="email" placeholder="exemple@email.com"
-                  class="rp-input" [class.rp-input--error]="isInvalid('email')" />
+                <label class="rp-label">Adresse e-mail <span class="rp-required">*</span></label>
+                <div class="rp-input-wrap">
+                  <i class="pi pi-envelope"></i>
+                  <input pInputText formControlName="email" type="email" placeholder="votre@email.com"
+                    class="rp-input" [class.rp-input--error]="isInvalid('email')" />
+                </div>
                 @if (isInvalid('email')) {
                   <small class="rp-error">Adresse email invalide</small>
                 }
               </div>
 
+              <!-- Téléphone -->
               <div class="rp-field">
                 <label class="rp-label">Téléphone <span class="rp-required">*</span></label>
-                <input pInputText formControlName="telephone" placeholder="+229 01 23 45 67 89"
-                  class="rp-input" [class.rp-input--error]="isInvalid('telephone')" />
+                <div class="rp-input-wrap">
+                  <i class="pi pi-phone"></i>
+                  <input pInputText formControlName="telephone" placeholder="+229 01 23 45 67 89"
+                    class="rp-input" [class.rp-input--error]="isInvalid('telephone')" />
+                </div>
                 @if (isInvalid('telephone')) {
                   <small class="rp-error">Numéro de téléphone invalide</small>
                 }
@@ -254,7 +270,7 @@
             </div>
           }
 
-          <!-- ── STEP 1 : Coordonnées ── -->
+          <!-- ══════════ STEP 1 : Coordonnées ══════════ -->
           @if (activeStep === 1) {
             <div class="rp-step">
               <div class="rp-step__header">
@@ -262,23 +278,29 @@
                 <p>{{ steps[1].subtitle }}</p>
               </div>
 
+              <!-- Select 'Genre' -->
               <div class="rp-grid rp-grid--2">
-                <!-- Genre : valeurs cohérentes avec enum Prisma -->
                 <div class="rp-field">
                   <label class="rp-label">Genre <span class="rp-required">*</span></label>
-                  <select formControlName="genre" class="rp-select"
-                    [class.rp-input--error]="isInvalid('genre')">
-                    <option value="">Sélectionnez</option>
-                    @for (g of genres; track g.value) {
-                      <option [value]="g.value">{{ g.label }}</option>
-                    }
-                  </select>
+                  <div class="rp-input-wrap">
+                    <i class="pi pi-user"></i>
+                    <p-select
+                      formControlName="genre"
+                      [options]="genres"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Sélectionnez"
+                      styleClass="rp-pselect"
+                      [class.rp-pselect--error]="isInvalid('genre')"
+                      appendTo="body"
+                    />
+                    
+                  </div>
                   @if (isInvalid('genre')) {
                     <small class="rp-error">Genre requis</small>
                   }
                 </div>
 
-                <!-- Date naissance : p-datePicker retourne un objet Date -->
                 <div class="rp-field">
                   <label class="rp-label">Date de naissance <span class="rp-required">*</span></label>
                   <p-datePicker
@@ -287,6 +309,7 @@
                     dateFormat="dd/mm/yy"
                     placeholder="jj/mm/aaaa"
                     styleClass="rp-datepicker"
+                    appendTo="body"
                     [maxDate]="today"
                   />
                   @if (isInvalid('date_naissance')) {
@@ -295,16 +318,21 @@
                 </div>
               </div>
 
+              <!-- Password -->
               <div class="rp-field">
                 <label class="rp-label">Mot de passe <span class="rp-required">*</span></label>
-                <p-password
-                  formControlName="password"
-                  [toggleMask]="true"
-                  placeholder="Minimum 8 caractères"
-                  [feedback]="true"
-                  styleClass="rp-password"
-                  [inputStyleClass]="isInvalid('password') ? 'rp-input rp-input--error' : 'rp-input'"
-                />
+                <div class="rp-input-wrap">
+                  <i class="pi pi-lock"></i>
+                  <p-password
+                    formControlName="password"
+                    [toggleMask]="true"
+                    placeholder="••••••••"
+                    [feedback]="true"
+                    appendTo="body"
+                    styleClass="rp-password"
+                    [inputStyleClass]="isInvalid('password') ? 'rp-input rp-input--error' : 'rp-input'"
+                  />
+                </div>
                 @if (isInvalid('password')) {
                   <small class="rp-error">Mot de passe requis (8 caractères min.)</small>
                 }
@@ -312,7 +340,7 @@
             </div>
           }
 
-          <!-- ── STEP 2 : Activité professionnelle ── -->
+          <!-- ══════════ STEP 2 : Activité professionnelle ══════════ -->
           @if (activeStep === 2) {
             <div class="rp-step">
               <div class="rp-step__header">
@@ -320,7 +348,7 @@
                 <p>{{ steps[2].subtitle }}</p>
               </div>
 
-              <!-- Type d'activité — cohérent avec enum Prisma : guide | hotel | transport -->
+              <!-- Selectionné votre secteur d'activité -->
               <div class="rp-field">
                 <label class="rp-label">Type d'activité <span class="rp-required">*</span></label>
                 <div class="rp-type-cards">
@@ -351,29 +379,42 @@
               </div>
 
               <div class="rp-grid rp-grid--2">
+
+                <!-- Ville actuelle -->
                 <div class="rp-field">
-                  <label class="rp-label">Ville <span class="rp-required">*</span></label>
-                  <input pInputText formControlName="ville" placeholder="Votre ville"
-                    class="rp-input" [class.rp-input--error]="isInvalid('ville')" />
+                  <label class="rp-label">Ville actuelle<span class="rp-required">*</span></label>
+                  <div class="rp-input-wrap">
+                    <i class="pi pi-map-marker"></i>
+                    <input pInputText formControlName="ville" placeholder="Votre ville"
+                      class="rp-input" [class.rp-input--error]="isInvalid('ville')" />
+                  </div>
                   @if (isInvalid('ville')) {
                     <small class="rp-error">Ville requise</small>
                   }
                 </div>
+                <!-- Années d'expérience -->
                 <div class="rp-field">
                   <label class="rp-label">Années d'expérience <span class="rp-required">*</span></label>
-                  <input pInputText type="number" formControlName="annee_experience"
+                  <div class="rp-input-wrap">
+                    <i class="pi pi-calendar"></i>
+                    <input pInputText type="number" formControlName="annee_experience"
                     placeholder="Ex : 5" min="0" max="60"
                     class="rp-input" [class.rp-input--error]="isInvalid('annee_experience')" />
+                  </div>
                   @if (isInvalid('annee_experience')) {
                     <small class="rp-error">Valeur requise (0–60)</small>
                   }
                 </div>
               </div>
 
+              <!-- Adresse complète -->
               <div class="rp-field">
                 <label class="rp-label">Adresse <span class="rp-required">*</span></label>
-                <input pInputText formControlName="adresse" placeholder="Votre adresse complète"
+                <div class="rp-input-wrap"> 
+                  <i class="pi pi-home"></i>
+                  <input pInputText formControlName="adresse" placeholder="Votre adresse complète"
                   class="rp-input" [class.rp-input--error]="isInvalid('adresse')" />
+                </div>
                 @if (isInvalid('adresse')) {
                   <small class="rp-error">Adresse requise</small>
                 }
@@ -381,7 +422,7 @@
             </div>
           }
 
-          <!-- ── STEP 3 : Documents & finalisation ── -->
+          <!-- ══════════ STEP 3 : Documents & finalisation ══════════ -->
           @if (activeStep === 3) {
             <div class="rp-step">
               <div class="rp-step__header">
@@ -392,67 +433,43 @@
               <!-- Document justificatif -->
               <div class="rp-field">
                 <label class="rp-label">Justificatif d'identité ou d'activité <span class="rp-required">*</span></label>
-                <div class="rp-upload-zone" [class.rp-upload-zone--filled]="!!documentFile">
+                <div class="rp-upload-zone"
+                  [class.rp-upload-zone--filled]="!!documentFile"
+                  (click)="!documentFile && docInput.click()">
                   <div class="rp-upload-zone__inner">
-                    <svg class="rp-upload-zone__icon" viewBox="0 0 48 48" fill="none">
-                      <path d="M24 32V16M17 23l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
                     @if (!documentFile) {
+                      <svg class="rp-upload-zone__icon" viewBox="0 0 48 48" fill="none">
+                        <path d="M24 32V16M17 23l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 36h32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
                       <p class="rp-upload-zone__text">
                         Déposez votre fichier ici<br/>
                         <span class="rp-upload-zone__link">ou cliquez pour parcourir</span>
                       </p>
                     } @else {
+                      <svg class="rp-upload-zone__icon rp-upload-zone__icon--done" viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="20" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+                        <path d="M16 24l6 6 10-10" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
                       <p class="rp-upload-zone__text">
                         <strong>{{ documentFile.name }}</strong>
                       </p>
+                      <button type="button" class="rp-upload-zone__remove"
+                        (click)="$event.stopPropagation(); removeDocument()">
+                        Supprimer
+                      </button>
                     }
                     <p class="rp-upload-zone__hint">PDF, JPG, PNG (max. 5 Mo)</p>
                   </div>
-                  <p-fileUpload
-                    mode="basic"
-                    chooseLabel=" "
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    [maxFileSize]="5242880"
-                    (onSelect)="onDocumentUpload($event)"
-                    styleClass="rp-file-upload-overlay"
-                  />
+
+                  <input #docInput type="file" hidden
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  (click)="$any($event.target).value = null"
+                  (change)="onDocumentUpload($event)" />
                 </div>
                 @if (isInvalid('document_justificatif')) {
                   <small class="rp-error">Document justificatif requis</small>
                 }
-              </div>
-
-              <!-- Photo de l'activité (optionnel) -->
-              <div class="rp-field">
-                <label class="rp-label">
-                  Photo de votre activité
-                  <span class="rp-optional">(optionnel)</span>
-                </label>
-                <div class="rp-image-upload">
-                  @if (imagePreview) {
-                    <div class="rp-image-upload__preview">
-                      <img [src]="imagePreview" alt="Aperçu" />
-                      <button type="button" class="rp-image-upload__remove" (click)="removeImage()">
-                        <svg viewBox="0 0 24 24" fill="none">
-                          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                        </svg>
-                      </button>
-                    </div>
-                  } @else {
-                    <div class="rp-image-upload__add">
-                      <p-fileUpload
-                        mode="basic"
-                        chooseLabel="Ajouter une photo"
-                        accept="image/*"
-                        [maxFileSize]="2097152"
-                        (onSelect)="onImageUpload($event)"
-                        styleClass="rp-file-upload-img"
-                      />
-                    </div>
-                  }
-                </div>
               </div>
 
               <!-- CGU -->
@@ -477,7 +494,7 @@
                 }
               </div>
 
-              <!-- Récapitulatif délai -->
+              <!-- Info délai -->
               <div class="rp-info-box">
                 <svg viewBox="0 0 20 20" fill="none" class="rp-info-box__icon">
                   <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.5"/>
@@ -488,13 +505,12 @@
                   Vous recevrez une confirmation par email à l'adresse renseignée.
                 </p>
               </div>
-
             </div>
           }
 
         </form>
 
-        <!-- Navigation buttons -->
+        <!-- ── Boutons de navigation (hors <form>) ── -->
         <div class="rp-nav-btns">
           @if (activeStep === 0) {
             <button type="button" class="rp-btn rp-btn--ghost" (click)="router.navigate(['/'])">
@@ -536,5 +552,4 @@
     }
 
   </main>
-
 </div>

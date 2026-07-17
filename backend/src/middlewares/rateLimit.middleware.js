@@ -59,6 +59,6 @@ export const resetPasswordLimiter = rateLimit({
   message: {
     success: false,
     message:
-      'Trop de tentatives de réinitialisation.'
+      'Trop de tentatives de réinitialisation. Attendez 15 minutes.'
   }
 });

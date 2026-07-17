@@ -138,6 +138,8 @@ body {
 .p-datepicker-panel {
   position: absolute !important;
   z-index: 9999 !important;
+  width: max-content !important;   /* s'ajuste au contenu réel */
+  max-width: 320px !important;     /* garde-fou */
   min-width: 300px !important;
   background: #ffffff !important;
   color: #1a1f2b !important;
@@ -291,7 +293,7 @@ body {
   cursor: default !important;
   pointer-events: none !important;
 }
- 
+
 /* Jours hors mois courant */
 .p-datepicker-panel tbody tr td.p-datepicker-other-month > span,
 .p-datepicker-panel tbody tr td.p-datepicker-other-month > button {
@@ -305,5 +307,11 @@ body {
   padding: 8px 12px !important;
   border-radius: 0 0 10px 10px !important;
   overflow: hidden !important;
+}
+
+.p-datepicker-panel [aria-disabled="true"] {
+  color: #cdd3db !important;
+  pointer-events: none !important;
+  cursor: default !important;
 }
  
