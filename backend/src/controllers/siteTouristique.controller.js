@@ -3,9 +3,14 @@ import {
   getAllSiteService,
   getSiteByIdService,
   updateSiteService,
-  deleteSiteService,
   findSiteExistService
 } from '../services/siteTouristique.service.js';
+import { 
+  moveSiteToTrashService, 
+  getDeletedSitesService 
+} from '../services/trash.service.js';
+import {restoreSiteService} from '../services/restore.service.js'
+
 import { siteTouristiqueSchema } from '../utils/validators.js';
 
 
@@ -73,10 +78,40 @@ export const createSiteController = async (req, res) => {
  */
 export const getAllSiteController = async (req, res) => {
   try {
-    const sites = await getAllSiteService();
-    res.status(200).json({success: true, data: sites});
+
+    let { page = "1", limit = "10", categorie } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+    if (!Number.isInteger(page) || page < 1) {
+      page = 1;
+    }
+    if (!Number.isInteger(limit) || limit < 1) {
+      limit = 10;
+    }
+    if (limit > 100) {
+      limit = 100;
+    }
+    const result = await getAllSiteService({
+      page,
+      limit,
+      categorie
+    });
+
+
+    return res.status(200).json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination
+
+    });
+
   } catch (error) {
-    res.status(500).json({success: false, message: error.message });
+    console.error( "Erreur getAllSiteController:",error );
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la récupération des sites"
+    });
+
   }
 }; 
 
@@ -86,23 +121,30 @@ export const getAllSiteController = async (req, res) => {
 export const getSiteByIdController = async (req, res) => {
   try {
     const { id } = req.params;
-
     const site = await getSiteByIdService(id);
-
     if (!site) {
       return res.status(404).json({
         success: false,
         message: "Site touristique non trouvé"
-      });
-    }
 
-    res.status(200).json({
+      });
+
+    }
+    return res.status(200).json({
       success: true,
       data: site
+
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+
+    return res.status(500).json({
+      success: false,
+      message: "Erreur serveur"
+
+    });
+
   }
+
 };
 
 
@@ -154,33 +196,124 @@ export const updateSiteController = async (req, res) => {
   }
 };
 
-
 /**
- * Supprimer un site tousistique
+ * Déplacer vers la corbeille
  */
 export const deleteSiteController = async (req, res) => {
+
   try {
+
     const { id } = req.params;
-
-    const result = await deleteSiteService(id);
-
-    if (!result) {
+    const site = await moveSiteToTrashService(id);
+    if (!site) {
       return res.status(404).json({
         success: false,
         message: "Site non trouvé"
-      });
-    }
 
-    res.status(200).json({
+      });
+
+    }
+    return res.status(200).json({
+
       success: true,
-      message: "Site supprimé avec succès"
+
+      message: "Site déplacé vers la corbeille"
+
     });
 
   } catch (error) {
-    res.status(500).json({
+
+    return res.status(500).json({
+
       success: false,
-      message: "Erreur serveur lors de la suppression"
+
+      message:
+
+        "Erreur serveur lors de la suppression"
+
     });
+
   }
+
 };
+
+/**
+ * Récuperer les sites de la corbeille.
+ */
+export const getDeletedSitesController = async (req, res) => {
+
+  try {
+    let { page = "1", limit = "10" } = req.query;
+
+    page = Number(page);
+    limit = Number(limit);
+    if (!Number.isInteger(page) || page < 1) {
+      page = 1;
+    }
+
+    if (!Number.isInteger(limit) || limit < 1) {
+      limit = 10;
+    }
+
+
+    if (limit > 100) {
+      limit = 100;
+    }
+    const result = await getDeletedSitesService({ page,limit });
+    return res.status(200).json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination
+
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la récupération de la corbeille"
+
+    });
+
+  }
+
+};
+
+/**
+ * Restaurer un sites.
+ */
+export const restoreSiteController = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+    const site = await restoreSiteService(id);
+    if (!site) {
+
+      return res.status(404).json({
+        success: false,
+        message: "Site non trouvé"
+
+      });
+
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Site restauré avec succès",
+      data: site
+
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la restauration"
+
+    });
+
+  }
+
+};
+
+
 

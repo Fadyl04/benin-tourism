@@ -3,12 +3,14 @@ import {
   getAllEvenementService,
   getEvenementByIdService,
   updateEvenementService,
-  deleteEvenementService,
   findEvenementExistService
 
 } from '../services/evenement.service.js';
+import { moveEvenementToTrashService, getDeletedEvenementService } from '../services/trash.service.js'; 
+import { restoreEvenementService } from '../services/restore.service.js';
 import { evenementSchema } from '../utils/validators.js';
 import {checkPrestataireValidation, handlePrestataireError} from '../services/auth/auth.prestataire.service.js';
+import { date, success } from 'zod';
 
 /**
  * Création d'un evenement
@@ -101,8 +103,28 @@ export const createEvenementController = async (req, res) => {
  */
 export const getAllEvenementController = async (req, res) => {
   try {
-    const evenements = await getAllEvenementService();
-    res.status(200).json({success: true, data: evenements});
+    let { page = "1", limit = "10", categorie } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+    if (!Number.isInteger(page) || page < 1) {
+      page = 1;
+    }
+    if (!Number.isInteger(limit) || limit < 1) {
+      limit = 10;
+    }
+    if (limit > 100) {
+      limit = 100;
+    }
+    const evenements = await getAllEvenementService({
+      page,
+      limit,
+      categorie
+    });
+    res.status(200).json({
+      success: true, 
+      data: evenements,
+      pagination: evenements.pagination
+    });
   } catch (error) {
     res.status(500).json({success: false, message: error.message });
   }
@@ -258,7 +280,7 @@ export const updateEvenementController = async (req, res) => {
 
   
 /**
- * Supprimer un événement
+ * Déplacer vers la corbeille
  */
 export const deleteEvenementController = async (req, res) => {
   try {
@@ -273,7 +295,7 @@ export const deleteEvenementController = async (req, res) => {
     }
 
     // Appel du service avec UUID string
-    const result = await deleteEvenementService(id);
+    const result = await moveEvenementToTrashService(id);
 
     // Vérifier si l'événement a bien été trouvé et supprimé
     if (!result) {
@@ -286,7 +308,7 @@ export const deleteEvenementController = async (req, res) => {
     // Retourner la réponse de succès UNIQUEMENT si tout s'est bien passé
     return res.status(200).json({
       success: true,
-      message: "Événement supprimé avec succès",
+      message: "Événement déplacé vers la corbeille",
     });
 
   } catch (error) {
@@ -307,3 +329,66 @@ export const deleteEvenementController = async (req, res) => {
     });
   }
 };
+
+/**
+ * Récuperer les evenement de la corbeille.
+ */
+export const getDeletedEvenementController = async (req, res) => {
+  try {
+    let { page = "1", limit = "10" } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+    if (!Number.isInteger(page) || page < 1) {
+      page = 1;
+    }
+
+    if (!Number.isInteger(limit) || limit < 1) {
+      limit = 10;
+    }
+
+
+    if (limit > 100) {
+      limit = 100;
+    }
+    const events = await getAllEvenementService({page, limit});
+    return res.status(200).json({
+      success: true,
+      data: events,
+      pagination: events.pagination
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la récupération de la corbeille"
+
+    });
+  }
+}
+
+
+/**
+ * Restaurer un evenement.
+ */
+export const restoreEvenementController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const events = await restoreEvenementService(id);
+    if (!events) {
+      return res.status(404).json({
+        success: false,
+        message: "evenement non trouvé"
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "evenement restauré avec succès",
+      data: events
+    })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la restauration"
+    });
+
+  }
+}

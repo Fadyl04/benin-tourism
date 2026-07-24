@@ -8,12 +8,37 @@ export const createEvenementService = async (data) => {
 };
 
 /**
- * Récupérer tous les événements
+ * Récupérer tous les événements actifs par pargination
  */
-export const getAllEvenementService = async () => {
-  return await prisma.evenement.findMany({
-      orderBy: { date_debut: 'asc' },
-  });
+export const getAllEvenementService = async ({ page = 1, limit = 10, categorie } = {}) => {
+  const skip = (page - 1) * limit;
+  const where = {
+    isDeleted: false, ...(categorie && {categorie})
+  };
+  const [events, total] = await prisma.$transaction([
+    prisma.evenement.findMany({
+      where,
+      orderBy: {  createdAt: "desc"},
+      skip,
+      take: limit
+    }),
+    prisma.evenement.count({
+      where
+    })
+  ])
+  const totalPages = Math.ceil(total / limit);
+  return {
+    data: events,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1
+    }
+    
+  }
 };
 
 /**
@@ -21,7 +46,7 @@ export const getAllEvenementService = async () => {
  */
 export const getEvenementByIdService = async (id) => {
   return await prisma.evenement.findUnique({
-    where: { id_evenement: id },
+    where: { id_evenement: id, isDeleted: false },
   });
 };
 
@@ -36,22 +61,6 @@ export const updateEvenementService = async (id, data) => {
 };
   
 /**
- * Supprimer un événement
- */
-export const deleteEvenementService = async (id) => {
-  try {
-    return await prisma.evenement.delete({
-      where: { id_evenement: id },
-    });
-  } catch (error) {
-    if (error.code === "P2025") {
-      return null; 
-    }
-    throw error;
-  }
-};
-
-/**
  * Vérifier si un événement existe déjà par nom, description, date et localisation
  */
 export const findEvenementExistService = async ({ nom, description, date_debut, localisation }, excludeId = null) => {
@@ -60,10 +69,11 @@ export const findEvenementExistService = async ({ nom, description, date_debut, 
     description,
     date_debut,
     localisation,
+    isDeleted: false
   };
 
   if (excludeId) {
-    whereClause.id_evenement = { not: excludeId }; // PAS Number(excludeId)
+    whereClause.id_evenement = { not: excludeId }; 
   }
 
   return await prisma.evenement.findFirst({

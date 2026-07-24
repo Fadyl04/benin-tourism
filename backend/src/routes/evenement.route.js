@@ -4,7 +4,9 @@ import {
     getAllEvenementController,
     getEvenementByIdController,
     updateEvenementController,
-    deleteEvenementController
+    deleteEvenementController,
+    getDeletedEvenementController,
+    restoreEvenementController
 } from '../controllers/evenement.controller.js';
 import { createUploadMiddleware } from '../middlewares/upload.middleware.js';
 import {authenticate, authorize} from '../middlewares/auth.middlewares.js';
@@ -141,6 +143,32 @@ router.post('/create', authenticate, can('create', 'Evenement'), uploadEvenement
 
 /**
  * @swagger
+ * /evenement/show:
+ *   get:
+ *     summary: Récupérer tous les événements
+ *     tags: [Evenements]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des événements
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Evenement'
+ */
+router.get('/show', authenticate, getAllEvenementController);
+
+router.get('/trash', can('read', 'Evenement'), getDeletedEvenementController);
+
+
+router.patch('/restore/:id', authenticate, can('update', 'Evenement'), restoreEvenementController);
+
+
+/**
+ * @swagger
  * /evenement/update/{id}:
  *   put:
  *     summary: Mettre à jour un événement
@@ -222,25 +250,7 @@ router.put('/update/:id', authenticate, can('update', 'Evenement'), uploadEvenem
 router.delete('/delete/:id',authenticate, can('delete', 'Evenement'),deleteEvenementController);
 
 
-/**
- * @swagger
- * /evenement/show:
- *   get:
- *     summary: Récupérer tous les événements
- *     tags: [Evenements]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Liste des événements
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Evenement'
- */
-router.get('/show', authenticate, getAllEvenementController);
+
 
 
 /**

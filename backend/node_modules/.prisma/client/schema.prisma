@@ -124,6 +124,8 @@ model Prestataire {
   evenements Evenement[] @relation("Hotel")
 
   @@index([statut_validation])
+  @@index([isDeleted])
+  @@index([deletedAt])
   @@map("prestataires")
 }
 
@@ -143,6 +145,8 @@ model SiteTouristique {
   visiteSites VisiteSite[]
 
   @@index([categorie])
+  @@index([isDeleted])
+  @@index([deletedAt])
   @@map("site_touristiques")
 }
 
@@ -171,6 +175,8 @@ model Evenement {
   reservations Reservation[]
 
   @@index([categorie])
+  @@index([isDeleted])
+  @@index([deletedAt])
   @@map("evenements")
 }
 
@@ -204,6 +210,8 @@ model Visite {
   transport Prestataire  @relation("Transport", fields: [id_transport], references: [id_prestataire])
 
   @@index([date_debut])
+  @@index([isDeleted])
+  @@index([deletedAt])
   @@map("visites")
 }
 
@@ -227,6 +235,8 @@ model Avis {
 
   @@unique([id_user, id_prestataire])
   @@index([id_prestataire])
+  @@index([isDeleted])
+  @@index([deletedAt])
   @@map("avis")
 }
 

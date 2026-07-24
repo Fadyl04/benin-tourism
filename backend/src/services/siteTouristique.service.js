@@ -8,14 +8,40 @@ export const createSiteService = async (data) => {
 };
 
 /**
- * Récupérer tous les sites touristiques
+ * Récupérer tous les sites touristiques actifs par pargination
  */
-export const getAllSiteService = async () => {
-  return await prisma.siteTouristique.findMany({
-    include: {
-      visiteSites: true
+export const getAllSiteService = async ({ page = 1, limit = 10, categorie } = {}) => {
+
+  const skip = (page - 1) * limit;
+  const where = { 
+    isDeleted: false, ...(categorie && {  categorie})
+  };
+  const [sites, total] = await prisma.$transaction([
+    prisma.siteTouristique.findMany({ 
+      where,
+      include: { visiteSites: true},
+      orderBy: {  createdAt: "desc"},
+      skip,
+      take: limit
+    }),
+    prisma.siteTouristique.count({
+      where
+    })
+  ]);
+  const totalPages = Math.ceil(total / limit);
+  return {
+    data: sites,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1
     }
-  });
+
+  };
+
 };
 
 /**
@@ -23,7 +49,7 @@ export const getAllSiteService = async () => {
  */
 export const getSiteByIdService = async (id) => {
   return await prisma.siteTouristique.findUnique({
-    where: { id_site: id },
+    where: { id_site: id, isDeleted: false },
     include: { visiteSites: true }
   });
 };
@@ -38,27 +64,6 @@ export const updateSiteService = async (id, data) => {
     });
 };
   
-/**
- * Supprimer un site touristique
- */
-export const deleteSiteService = async (id) => {
-  try {
-    // Supprimer le site
-    return await prisma.siteTouristique.delete({
-      where: { id_site: id }
-    });
-
-  } catch (error) {
-    console.error('Error in deleteSiteService:', error);
-    
-    if (error.code === 'P2025') {
-      return null; // Site non trouvé
-    }
-    
-    throw error;
-  }
-};
-
 
 /**
  * Vérifier si un site touristique existe déjà par nom, description, date et localisation
@@ -67,7 +72,8 @@ export const findSiteExistService = async ({ nom, description, localisation }, e
     const whereClause = {
       nom,
       description,
-      localisation
+      localisation,
+      isDeleted: false
     };
   
     if (excludeId) {

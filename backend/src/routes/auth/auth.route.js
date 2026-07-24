@@ -29,7 +29,7 @@ const prestataireUpload = createUploadMiddleware('prestataires');
  *  Login centralisé
  *  admin / client / prestataire
 */
-router.post('/login', loginUserController, authLimiter);
+router.post('/login', authLimiter, loginUserController);
 
 /**
  * Register client
@@ -59,12 +59,12 @@ router.post('/first-login/change-password', authenticate, firstLoginChangePasswo
 /**
  * Demande reset password
  */
-router.post('/forgot-password', forgotPasswordLimiter, requestPasswordResetController, forgotPasswordLimiter);
+router.post('/forgot-password', forgotPasswordLimiter, requestPasswordResetController);
 
 /**
  * Reset password
  */
-router.post('/reset-password', resetPasswordLimiter, resetPasswordController, resetPasswordLimiter);
+router.post('/reset-password', resetPasswordLimiter, resetPasswordController);
 
 /**
  * Logout
