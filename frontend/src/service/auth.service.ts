@@ -19,6 +19,7 @@ export interface User {
   email: string;
   role: Role;
   firstLogin: boolean;
+  permissions?: string[];
 }
 
 /**
@@ -96,7 +97,7 @@ export class AuthService {
     );
   }
 
-  /**
+/**
  * LOGIN
  */
 login(
@@ -135,7 +136,7 @@ login(
        * UPDATE CASL
        */
       this.abilityService.updateAbility(
-        [],
+        user.permissions ?? [],
         user.role
       );
 
@@ -289,12 +290,9 @@ redirectByRole(role: Role): void {
   private loadAbility(): void {
 
     if (!this.isBrowser) return;
-
     const user = this.storage.getObject<User>('currentUser');
-
     if (!user) return;
-
-    this.abilityService.updateAbility([], user.role);
+    this.abilityService.updateAbility(user.permissions ?? [], user.role);
   }
 
   /**

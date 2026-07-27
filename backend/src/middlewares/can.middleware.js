@@ -1,8 +1,10 @@
 export const can = (action, subject) => {
   return (req, res, next) => {
-    // req.user est injecté par le middleware authenticate
-    const permissions = req.user?.permissions || [];
+    if (req.user?.role === 'admin') {
+      return next();
+    }
 
+    const permissions = req.user?.permissions || [];
     const required = `${action}_${subject.toLowerCase()}`;
 
     if (!permissions.includes(required)) {

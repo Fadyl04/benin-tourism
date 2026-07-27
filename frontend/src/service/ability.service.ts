@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 import {
   Ability,
@@ -50,10 +51,7 @@ export type AppAbility =
 /**
  * MAPPING PERMISSIONS
  */
-const PERMISSION_MAP: Record<
-  string,
-  [Actions, Subjects]
-> = {
+const PERMISSION_MAP: Record<string,[Actions, Subjects]> = {
 
   // SITES
   create_site: ['create', 'SiteTouristique'],
@@ -100,40 +98,27 @@ const PERMISSION_MAP: Record<
 export class AbilityService {
 
   public ability: AppAbility;
+  private abilityReady = new BehaviorSubject<boolean>(false);
+  public abilityReady$ = this.abilityReady.asObservable();
 
   constructor() {
-
-    this.ability =
-      new Ability([]) as AppAbility;
+    this.ability = new Ability([]) as AppAbility;
   }
 
   /**
    * UPDATE ABILITY
    */
-  updateAbility(
-    permissions: string[] = [],
-    role?: Role
-  ): void {
+  updateAbility( permissions: string[] = [],role?: Role): void {
 
-    const AppAbilityClass =
-      Ability as AbilityClass<AppAbility>;
-
-    const {
-      can,
-      rules
-    } = new AbilityBuilder<AppAbility>(
-      AppAbilityClass
-    );
-
+    const AppAbilityClass = Ability as AbilityClass<AppAbility>;
+    const { can, rules} = new AbilityBuilder<AppAbility>(AppAbilityClass);
     /**
      * ADMIN
      */
     if (role === 'admin') {
-
       can('manage', 'all');
-
       this.ability.update(rules);
-
+      this.abilityReady.next(true);
       return;
     }
 
@@ -142,13 +127,9 @@ export class AbilityService {
      */
     permissions.forEach((permission) => {
 
-      const mapped =
-        PERMISSION_MAP[permission];
-
+      const mapped = PERMISSION_MAP[permission];
       if (!mapped) return;
-
       const [action, subject] = mapped;
-
       can(action, subject);
     });
 
@@ -158,16 +139,13 @@ export class AbilityService {
     can('view', 'Dashboard');
 
     this.ability.update(rules);
+    this.abilityReady.next(true);
   }
 
   /**
    * CHECK PERMISSION
    */
-  can(
-    action: Actions,
-    subject: Subjects
-  ): boolean {
-
+  can(action: Actions,subject: Subjects): boolean {
     return this.ability.can(
       action,
       subject
@@ -178,7 +156,7 @@ export class AbilityService {
    * CLEAR
    */
   clearAbility(): void {
-
     this.ability.update([]);
+    this.abilityReady.next(false);
   }
 }

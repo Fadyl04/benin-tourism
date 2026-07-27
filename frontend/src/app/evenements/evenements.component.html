@@ -1,1 +1,24 @@
-<p>evenements works!</p>
+<p-toast />
+<!-- {{-- BUTTON POUR AJOUTETR UN Evenement Culturel --}} -->
+<div class="d-flex justify-content-between align-items-center mt-3 mb-4 p-3 bg-light shadow-sm rounded">
+    <h2 class="mb-0" style="color: #0a3764">Liste des évènements culturels</h2>
+    @if (canCreateEvenement) {
+        <button
+            type="button"
+            class="btn"
+            style="background-color: #0a3764; border-color: #0a3764; color: #fff;"
+            
+        >
+            <i class="fa-solid fa-plus me-1"></i> Nouveau évènement
+        </button>
+    }
+</div>
+
+<!-- MODAL D'AJOUT ET DE MODIFICATION D'UN EVENEMENT CULTUREL -->
+
+<!-- MODAL POUR SUPPRIMER D'UN EVENEMENT CULTUREL -->
+
+
+<!-- LISTES DES EVENEMENTS CULTURELS -->
+
+<!-- VOIR LES DETAILS DES EVENEMENTS CULTURELS -->

@@ -17,7 +17,7 @@ import { date, success } from 'zod';
  */
 export const createEvenementController = async (req, res) => {
   try {
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const imagePath = req.file ? `/uploads/evenements/${req.file.filename}` : null;
 
     // Prétraitement
     const processedData = { ...req.body };
@@ -103,7 +103,7 @@ export const createEvenementController = async (req, res) => {
  */
 export const getAllEvenementController = async (req, res) => {
   try {
-    let { page = "1", limit = "10", categorie } = req.query;
+    let { page = "1", limit = "10", categorie, search } = req.query;
     page = Number(page);
     limit = Number(limit);
     if (!Number.isInteger(page) || page < 1) {
@@ -118,7 +118,8 @@ export const getAllEvenementController = async (req, res) => {
     const evenements = await getAllEvenementService({
       page,
       limit,
-      categorie
+      categorie,
+      search
     });
     res.status(200).json({
       success: true, 
@@ -168,7 +169,7 @@ export const updateEvenementController = async (req, res) => {
       });
     }
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const imagePath = req.file ? `/uploads/evenements/${req.file.filename}` : undefined;
     const updatedData = { ...req.body, image: imagePath };
 
     /* console.log('Données reçues pour mise à jour:', updatedData);*/

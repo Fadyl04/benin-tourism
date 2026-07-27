@@ -1,3 +1,4 @@
+import { constants } from "buffer";
 import prisma from "../config/db.config.js";
 
 /**
@@ -10,10 +11,18 @@ export const createEvenementService = async (data) => {
 /**
  * Récupérer tous les événements actifs par pargination
  */
-export const getAllEvenementService = async ({ page = 1, limit = 10, categorie } = {}) => {
+export const getAllEvenementService = async ({ page = 1, limit = 10, categorie, search } = {}) => {
   const skip = (page - 1) * limit;
   const where = {
-    isDeleted: false, ...(categorie && {categorie})
+    isDeleted: false, 
+    ...(categorie && {categorie}),
+    ...(search && {
+      OR: [
+        {nom: {constants: search}},
+        {description: {constants: search}},
+        {localisation: {constants: search}},
+      ]
+    })
   };
   const [events, total] = await prisma.$transaction([
     prisma.evenement.findMany({

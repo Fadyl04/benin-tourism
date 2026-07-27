@@ -10,14 +10,6 @@
   --navy-900: #0a3764;
   --navy-700: #1a3353;
   --gold-500: #e8a020;
-  --gray-50:  #f8f9fb;
-  --gray-100: #f0f2f5;
-  --gray-200: #e2e6ec;
-  --gray-300: #cdd3db;
-  --gray-400: #9ca3af;
-  --gray-500: #7a8595;
-  --gray-700: #3c4555;
-  --gray-900: #1a1f2b;
   --green-500: #22c55e;
   --red-500:   #ef4444;
   --radius-sm: 8px;
@@ -1048,4 +1040,75 @@
   .rp-nav-header { gap: 0; }
 }
 
+/* ═══════════════════════════════════════════════════════
+   DARK MODE — corrections des couleurs codées en dur
+═══════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+
+  .rp-main { background: var(--gray-50); }
+
+  .rp-form,
+  .rp-step,
+  .rp-type-card,
+  .rp-success {
+    background: var(--gray-100);
+  }
+
+  .rp-input {
+    background: var(--gray-100);
+    color: var(--gray-900);
+    color-scheme: dark;
+  }
+
+  .rp-pill {
+    background: var(--gray-100);
+    border-color: var(--gray-200);
+  }
+
+  .rp-btn--ghost {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border-color: var(--gray-200);
+  }
+  .rp-btn--ghost:hover:not(:disabled) { background: var(--gray-200); }
+
+  .rp-checkbox {
+    background: var(--gray-100);
+    border-color: var(--gray-300);
+  }
+
+  .rp-upload-zone:hover { background: rgba(10,55,100,.25); }
+  .rp-upload-zone--filled { background: rgba(0,133,89,.12); }
+
+  .rp-cgu--error { background: rgba(239,68,68,.10); }
+
+  .rp-info-box p { color: #e8d38a; }
+  .rp-info-box__icon { color: #FFBE00; }
+
+  /* p-select champ fermé */
+  ::ng-deep .rp-pselect {
+    background: var(--gray-100) !important;
+    border-color: var(--gray-200) !important;
+    color-scheme: dark !important;
+  }
+
+  /* p-datePicker champ */
+  ::ng-deep .rp-datepicker .p-datepicker-input {
+    background: var(--gray-100) !important;
+    color: var(--gray-900) !important;
+    border-color: var(--gray-200) !important;
+    color-scheme: dark !important;
+  }
+
+  /* p-password champ */
+  ::ng-deep .rp-password input.p-inputtext {
+    background: var(--gray-100) !important;
+    color: var(--gray-900) !important;
+    border-color: var(--gray-200) !important;
+    color-scheme: dark !important;
+  }
+
+  .rp-profile-photo-icon { background: var(--gray-200); }
+  .rp-profile-photo-upload:hover .rp-profile-photo-icon { background: var(--gray-300); }
+}
 

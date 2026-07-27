@@ -4,7 +4,9 @@ import {
   getAllVisiteController,
   getVisiteByIdController,
   deleteVisiteController,
-  updateVisiteController
+  updateVisiteController,
+  restoreVisiteController, 
+  getDeletedVisiteController
 } from "../controllers/visite.controller.js";
 import { authenticate, authorize } from '../middlewares/auth.middlewares.js';
 import { createUploadMiddleware } from '../middlewares/upload.middleware.js';
@@ -158,6 +160,34 @@ router.post("/create", authenticate, can('create', 'Visite'), uploadVisite.singl
 
 /**
  * @swagger
+ * /visite/show:
+ *   get:
+ *     summary: Récupérer toutes les visites
+ *     tags: [Visites]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Liste des visites
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Visite'
+ */
+
+router.get("/show", authenticate, getAllVisiteController);
+
+
+router.get("/trash", authenticate, can('red', 'Visite'), getDeletedVisiteController);
+
+
+router.patch("/restore/:id", authenticate, can('update', 'Visite'), restoreVisiteController)
+
+
+/**
+ * @swagger
  * /visite/update/{id_visite}:
  *   put:
  *     summary: Mettre à jour une visite
@@ -241,29 +271,8 @@ router.put("/update/:id_visite", authenticate, can('update', 'Visite'), uploadVi
  *       404:
  *         description: Visite non trouvée
  */
-router.delete("/delete/:id_visite", authenticate, can('delete', 'Visite'), deleteVisiteController);
+router.delete("/delete/:id", authenticate, can('delete', 'Visite'), deleteVisiteController);
 
-
-/**
- * @swagger
- * /visite/show:
- *   get:
- *     summary: Récupérer toutes les visites
- *     tags: [Visites]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Liste des visites
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Visite'
- */
-
-router.get("/show", authenticate, getAllVisiteController);
 
 
 /**

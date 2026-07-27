@@ -268,7 +268,7 @@ router.get( '/show', authenticate, getAllSiteController );
  *       403:
  *         description: Permission refusée
  */
-router.get( '/trash', authenticate,can('read', 'Site'), getDeletedSitesController );
+router.get( '/trash', authenticate, can('read', 'Site'), getDeletedSitesController );
 
 
 /**

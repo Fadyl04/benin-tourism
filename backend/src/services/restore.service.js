@@ -38,3 +38,21 @@ export const restoreEvenementService = async (id) => {
         throw error;
     }
 }
+
+// ===== Soft delete de visites =====
+export const restoreVisiteService = async (id) => {
+    try {
+        return await prisma.visite.update({
+            where: {id_visite: id},
+            data: {
+                isDeleted: false,
+                deletedAt: null
+            }
+        })
+    } catch (error) {
+        if (error.code === "P2025") {
+            return null;
+        }
+        throw error;
+    }
+}

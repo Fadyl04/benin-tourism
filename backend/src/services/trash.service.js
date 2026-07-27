@@ -113,3 +113,55 @@ export const getDeletedEvenementService = async ({ page = 1, limit = 10 } = {}) 
     };
 
 }
+
+// ===== Soft delete de visite =====
+/**
+ * Déplacer une visite vers la corbeille
+ */
+export const moveVisiteToTrashService = async (id) => {
+    try {
+        return await prisma.visite.update({
+            where: {id_visite: id},
+            data: {
+                isDeleted: true,
+                deletedAt: new Date()
+            }
+        })
+    } catch (error) {
+        if (error.code === "P2025") {
+            return null;
+        }
+        throw error;
+        
+    }
+}
+
+/**
+ * Récupérer les visites supprimés
+ * avec pagination
+ */
+export const getDeletedVisiteSivice = async ({ page = 1, limit = 10 } = {}) => {
+    const skip = (page - 1) * limit;
+    const where = {isDeleted: true};
+    const [visites, total] = await prisma.$transaction([
+        prisma.visite.findMany({
+            where,
+            orderBy: {  deletedAt: "desc"},
+            skip,
+            take: limit 
+        }),
+        prisma.visite.count({where})
+    ]);
+    const totalPages = Math.ceil(total / limit);
+    return {
+        data: visites,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+        }
+    };
+}

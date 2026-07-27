@@ -2,19 +2,21 @@ import {
   createVisiteService,
   getAllVisiteService,
   getVisiteByIdService,
-  deleteVisiteService,
   updateVisiteService,
   findVisiteExistService
 } from "../services/visite.service.js";
+import {moveVisiteToTrashService, getDeletedVisiteSivice} from "../services/trash.service.js";
+import {restoreVisiteService} from "../services/restore.service.js"
 import { visiteSchema } from "../utils/validators.js";
 import {checkPrestataireValidation, handlePrestataireError} from '../services/auth/auth.prestataire.service.js'; 
+import { success } from "zod";
   
 /**
  * Créer une visite
  */
 export const createVisiteController = async (req, res) => {
   try {
-    const image = req.file ? `/uploads/${req.file.filename}` : null;
+    const image = req.file ? `/uploads/visites/${req.file.filename}` : null;
 
     // Préparation des données avec gestion des champs vides
     const inputData = { 
@@ -112,8 +114,22 @@ export const createVisiteController = async (req, res) => {
  */
 export const getAllVisiteController = async (req, res) => {
   try {
-    const visites = await getAllVisiteService();
-    res.status(200).json({ success: true, data: visites });
+    let { page = "1", limit = "10", search } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+    if (!Number.isInteger(page) || page < 1) page = 1;
+    if (!Number.isInteger(limit) || limit < 1) limit = 10;
+    if (limit > 100) limit = 100;
+    const visites = await getAllVisiteService({
+      page,
+      limit,
+      search
+    });
+    res.status(200).json({ 
+      success: true, 
+      data: visites,
+      pagination: pagination
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -150,7 +166,7 @@ export const getVisiteByIdController = async (req, res) => {
   
   
 /**
- * Supprimer une visite
+ * Déplacer vers la corbeille
  */
 export const deleteVisiteController = async (req, res) => {
     try {
@@ -162,7 +178,7 @@ export const deleteVisiteController = async (req, res) => {
           message: "ID de visite invalide" 
         });
       }
-      const deleted =  await deleteVisiteService(id_visite);
+      const deleted =  await moveVisiteToTrashService(id);
       if (!deleted) {
         return res.status(404).json({ success: false, message: "Visite non trouvé" });
       } 
@@ -190,7 +206,7 @@ export const updateVisiteController = async (req, res) => {
       });
     }
 
-    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const image = req.file ? `/uploads/visites/${req.file.filename}` : undefined;
 
     const payload = { ...req.body, image };
 
@@ -342,3 +358,67 @@ export const updateVisiteController = async (req, res) => {
     });
   }
 };
+
+/**
+ * Récuperer les visites de la corbeille.
+ */
+export const getDeletedVisiteController = async (req, res) => {
+try {
+  let { page = "1", limit = "10" } = req.query;
+
+  page = Number(page);
+  limit = Number(limit);
+  if (!Number.isInteger(page) || page < 1) {
+    page = 1;
+  }
+
+  if (!Number.isInteger(limit) || limit < 1) {
+    limit = 10;
+  }
+
+
+  if (limit > 100) {
+    limit = 100;
+  }
+  const visites = await getDeletedVisiteSivice({page, limit});
+  return res.status(200).json({
+    success: true,
+    data: visites.data,
+    pagination: visites.pagination
+  })
+} catch (error) {
+  return res.status(500).json({
+    success: false,
+    message:"Erreur serveur lors de la récupération de la corbeille"
+
+  });
+}
+};
+
+/**
+ * Restaurer un évènements.
+ */
+export const restoreVisiteController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const visite = await restoreVisiteService(id);
+    if(!visite) {
+      return res.status(404).json({
+        success: false,
+        message: "visite non trouvé"
+
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Visite restauré avec succès",
+      data: visite
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message:"Erreur serveur lors de la restauration"
+
+    });
+  }
+}

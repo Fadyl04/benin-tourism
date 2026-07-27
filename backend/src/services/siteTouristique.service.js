@@ -10,25 +10,35 @@ export const createSiteService = async (data) => {
 /**
  * Récupérer tous les sites touristiques actifs par pargination
  */
-export const getAllSiteService = async ({ page = 1, limit = 10, categorie } = {}) => {
+export const getAllSiteService = async ({ page = 1, limit = 10, categorie, search } = {}) => {
 
   const skip = (page - 1) * limit;
-  const where = { 
-    isDeleted: false, ...(categorie && {  categorie})
+
+  const where = {
+    isDeleted: false,
+    ...(categorie && { categorie }),
+    ...(search && {
+      OR: [
+        { nom:          { contains: search } },
+        { description:  { contains: search } },
+        { localisation: { contains: search } },
+      ],
+    }),
   };
+
   const [sites, total] = await prisma.$transaction([
-    prisma.siteTouristique.findMany({ 
+    prisma.siteTouristique.findMany({
       where,
-      include: { visiteSites: true},
-      orderBy: {  createdAt: "desc"},
+      include: { visiteSites: true },
+      orderBy: { createdAt: "desc" },
       skip,
       take: limit
     }),
-    prisma.siteTouristique.count({
-      where
-    })
+    prisma.siteTouristique.count({ where })
   ]);
+
   const totalPages = Math.ceil(total / limit);
+
   return {
     data: sites,
     pagination: {
@@ -39,9 +49,7 @@ export const getAllSiteService = async ({ page = 1, limit = 10, categorie } = {}
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1
     }
-
   };
-
 };
 
 /**

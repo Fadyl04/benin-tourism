@@ -1,0 +1,387 @@
+<div class="graph-page">
+    <!-- {{-- EN-TÊTE DE LA PAGE --}} -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Tableau de bord</h1>
+            <p class="page-subtitle">Vue d'ensemble de la plateforme Benin Tourism</p>
+        </div>
+
+        <div class="page-actions">
+            <button
+                pButton
+                type="button"
+                label="Actualiser"
+                icon="pi pi-refresh"
+                class="p-button-outlined"
+            ></button>
+        </div>
+
+    </div>
+
+  <!-- {{-- KPI --}} -->
+
+    <section class="kpi-grid">
+        @for (kpi of kpis; track kpi.label) {
+
+        <div class="kpi-card" [class]="'kpi-' + kpi.color">
+            <div class="kpi-card-header">
+                <div class="kpi-icon"><i [class]="kpi.icon"></i></div>
+                <span
+                    class="kpi-delta"
+                    [class.positive]="kpi.deltaUp"
+                    [class.negative]="!kpi.deltaUp"
+                >
+                    <i
+                    class="pi"
+                    [class.pi-arrow-up]="kpi.deltaUp"
+                    [class.pi-arrow-down]="!kpi.deltaUp"
+                    ></i>
+                    {{ kpi.delta }}
+                </span>
+
+            </div>
+            <div class="kpi-content">
+                <span class="kpi-label">
+                    {{ kpi.label }}
+                </span>
+                <strong class="kpi-value">
+                    {{ kpi.value }}
+                </strong>
+            </div>
+
+        </div>
+
+        }
+
+    </section>
+
+    <!-- {{-- GRAPHIQUES --}} -->
+    <section class="charts-grid">
+
+        <!-- Graphique des visites -->
+
+        <div class="chart-card visits-card">
+
+            <div class="card-header">
+                <div>
+                    <h2>
+                        Évolution des visites
+                    </h2>
+                    <p>
+                        Comparaison des visites mensuelles
+                    </p>
+
+                </div>
+
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-ellipsis-v"
+                    class="p-button-text p-button-rounded"
+                    pTooltip="Plus d'options"
+                    tooltipPosition="left"
+                ></button>
+
+            </div>
+
+
+            <div class="chart-container visits-chart">
+
+                <p-chart
+                type="line"
+                [data]="visitsChartData"
+                [options]="visitsChartOptions"
+                ></p-chart>
+
+            </div>
+
+        </div>
+
+
+        <!-- Graphique donut -->
+
+        <div class="chart-card category-card">
+
+            <div class="card-header">
+
+                <div>
+                    <h2>
+                        Répartition de l'activité
+                    </h2>
+                    <p>
+                        Répartition par catégorie
+                    </p>
+                </div>
+
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-ellipsis-v"
+                    class="p-button-text p-button-rounded"
+                    pTooltip="Plus d'options"
+                    tooltipPosition="left"
+                ></button>
+
+            </div>
+            <div class="chart-container donut-chart">
+                <p-chart
+                    type="doughnut"
+                    [data]="categoryChartData"
+                    [options]="categoryChartOptions"
+                ></p-chart>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- {{-- TABLEAUX --}} -->
+
+    <section class="tables-grid">
+
+        <!-- {{-- UTILISATEURS RÉCENTS --}} -->
+
+        <div class="table-card">
+
+            <div class="card-header">
+                <div>
+                    <h2>
+                        Derniers utilisateurs
+                    </h2>
+                    <p>
+                        Les utilisateurs récemment inscrits
+                    </p>
+                </div>
+
+                <button
+                    pButton
+                    type="button"
+                    label="Voir tout"
+                    class="p-button-text"
+                ></button>
+            </div>
+
+            <p-table
+                [value]="recentUsers"
+                styleClass="graph-table"
+                [tableStyle]="{
+                'min-width': '100%'
+                }"
+                responsiveLayout="scroll"
+            >
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>
+                        Utilisateur
+                        </th>
+                        <th>
+                        Rôle
+                        </th>
+                        <th>
+                        Statut
+                        </th>
+                        <th>
+                        Date
+                        </th>
+                    </tr>
+                </ng-template>
+
+
+                <ng-template pTemplate="body"let-user>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="user-cell">
+                                <p-avatar
+                                    [label]="getUserInitials(user.name)"
+                                    shape="circle"
+                                    size="normal"
+                                ></p-avatar>
+
+                                <div class="user-info">
+                                    <strong>
+                                        {{ user.name }}
+                                    </strong>
+                                    <span>
+                                        {{ user.email }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+                            <span class="role-label">
+
+                                {{ user.role }}
+                            </span>
+                        </td>
+
+
+                        <td>
+                            <p-tag
+                                [value]="user.status"
+                                [severity]="
+                                getStatusSeverity(user.status)
+                                "
+                            ></p-tag>
+                        </td>
+
+
+                        <td>
+                            <span class="date-label">
+                                {{ user.date }}
+                            </span>
+                        </td>
+
+                    </tr>
+
+                </ng-template>
+
+
+                <ng-template pTemplate="emptymessage">
+
+                    <tr>
+                        <td colspan="4" class="empty-message">
+                        Aucun utilisateur récent.
+                        </td>
+                    </tr>
+
+                </ng-template>
+
+            </p-table>
+
+        </div>
+
+        <!-- {{-- ÉVÉNEMENTS RÉCENTS --}} -->
+
+        <div class="table-card">
+
+        <div class="card-header">
+            <div>
+                <h2>
+                    Événements récents
+                </h2>
+                <p>
+                    Les derniers événements enregistrés
+                </p>
+            </div>
+
+            <button
+                pButton
+                type="button"
+                label="Voir tout"
+                class="p-button-text"
+            ></button>
+
+        </div>
+
+
+        <p-table
+            [value]="recentEvents"
+            styleClass="graph-table"
+            [tableStyle]="{
+            'min-width': '100%'
+            }"
+            responsiveLayout="scroll"
+        >
+
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                    Événement
+                    </th>
+
+                    <th>
+                    Lieu
+                    </th>
+
+                    <th>
+                    Date
+                    </th>
+
+                    <th>
+                    Statut
+                    </th>
+
+                    <th>
+                    Visites
+                    </th>
+
+                </tr>
+            </ng-template>
+
+
+            <ng-template
+                pTemplate="body"
+                let-event>
+
+                <tr>
+
+                    <td>
+                        <div class="event-name">
+                            <i class="pi pi-calendar"></i>
+                            <strong>
+                            {{ event.name }}
+                            </strong>
+                        </div>
+                    </td>
+
+
+                    <td>
+                        <span class="location-label">
+                            <i class="pi pi-map-marker"></i>
+                            {{ event.lieu }}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <span class="date-label">
+                            {{ event.date }}
+                        </span>
+                    </td>
+
+
+                    <td>
+                        <p-tag
+                            [value]="event.status"
+                            [severity]="
+                            getStatusSeverity(event.status)
+                            "
+                        ></p-tag>
+                    </td>
+
+
+                    <td>
+                        <strong class="visits-value">
+                            {{ event.visits | number }}
+                        </strong>
+                    </td>
+
+                </tr>
+
+            </ng-template>
+
+
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="5" class="empty-message">
+                        Aucun événement récent.
+                    </td>
+                </tr>
+            </ng-template>
+
+        </p-table>
+
+        </div>
+    </section>
+
+</div>

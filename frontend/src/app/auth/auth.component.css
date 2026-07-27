@@ -351,3 +351,88 @@
   .form-row { grid-template-columns: 1fr; }
   .dialog-title { font-size: 1.4rem; }
 }
+
+/* ── Support du mode dark (reste du formulaire) ── */
+@media (prefers-color-scheme: dark) {
+
+  .dialog-subtitle {
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .form-group label {
+    color: #9aa3b5;
+  }
+
+  .input-wrap > i:first-child {
+    color: #FFBE00;
+    opacity: 0.55;
+  }
+
+  .input-wrap input {
+    color: #e8ecf3 !important;
+    background: #12161f !important;
+    border-color: rgba(255, 255, 255, 0.16) !important;
+    color-scheme: dark !important;
+  }
+
+  .input-wrap input:focus {
+    border-color: #FFBE00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 190, 0, 0.12) !important;
+  }
+
+  .input-wrap input::placeholder {
+    color: rgba(255, 255, 255, 0.30) !important;
+  }
+
+  .input-wrap input.input-error {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+  }
+
+  .toggle-pwd {
+    color: #FFBE00;
+    opacity: 0.5;
+  }
+  .toggle-pwd:hover { opacity: 0.9; }
+
+  .forgot-link {
+    color: #FFBE00;
+    border-bottom-color: rgba(255, 190, 0, 0.3);
+  }
+  .forgot-link:hover {
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+
+  .strength-bar {
+    background: rgba(255, 255, 255, 0.10);
+  }
+
+  .strength-label {
+    color: #6b7385;
+  }
+
+  .field-error {
+    color: #f87171;
+  }
+
+  .btn-submit {
+    background: #FFBE00;
+    color: #0a3764 !important;
+  }
+  .btn-submit:hover:not(:disabled) {
+    background: #e6aa00;
+    box-shadow: 0 6px 20px rgba(255, 190, 0, 0.25);
+  }
+
+  .dialog-footer p {
+    color: #6b7385;
+  }
+
+  .switch-link {
+    color: #FFBE00;
+  }
+  .switch-link:hover {
+    color: #ffffff;
+  }
+}

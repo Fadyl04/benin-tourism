@@ -66,6 +66,9 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.listen( 3000, () => {
+  console.log('Swagger http://localhost:3000/api-docs')
+});
 
 /* =======================
    FICHIERS STATIQUES
@@ -76,7 +79,14 @@ const __dirname = path.dirname(__filename);
 
 // ⚠️ Remonter d’un niveau car app.js est dans src/
 /* app.use('/public', express.static(path.join(__dirname, '../public'))); */
-app.use('/uploads', express.static('uploads'));
+app.use(
+  '/uploads',
+  (req, res, next) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    next();
+  },
+  express.static('uploads')
+);
 
 /*
   ROUTES API

@@ -911,15 +911,105 @@
 }
  
 
+/* ═══════════════════════════════════════════════════════
+   DARK MODE — section fonctionnalités
+   (navbar et hero restent identiques : déjà en couleurs de marque sombres)
+═══════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
 
+  .section-features {
+    background: #12161f;
+  }
 
+  .section-eyebrow {
+    background: rgba(255, 190, 0, 0.12);
+    color: #FFBE00;
+  }
 
+  .section-title {
+    color: #f1f4f9;
+  }
 
+  .features-intro {
+    color: #9aa3b5;
+  }
 
+  /* ── Cards ── */
+  :host ::ng-deep .feature-card.p-card,
+  :host ::ng-deep .feature-card--gold.p-card {
+    background: #1a2130 !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+  }
 
+  :host ::ng-deep .feature-card.p-card:hover,
+  :host ::ng-deep .feature-card--gold.p-card:hover {
+    background: #212a3d !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35) !important;
+  }
 
+  :host ::ng-deep .feature-card.p-card .p-card-title,
+  :host ::ng-deep .feature-card--gold.p-card .p-card-title {
+    color: #FFBE00 !important;
+  }
 
+  :host ::ng-deep .feature-card.p-card .p-card-content ul li,
+  :host ::ng-deep .feature-card--gold.p-card .p-card-content ul li {
+    color: #b8c0cf !important;
+  }
 
+  :host ::ng-deep .feature-card.p-card .p-card-content ul li i,
+  :host ::ng-deep .feature-card--gold.p-card .p-card-content ul li i {
+    color: #FFBE00 !important;
+  }
 
+  :host ::ng-deep .feature-card.p-card .p-card-footer,
+  :host ::ng-deep .feature-card--gold.p-card .p-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.10) !important;
+  }
 
+  .feature-icon-wrap {
+    background: rgba(255, 190, 0, 0.10);
+    border-color: rgba(255, 190, 0, 0.25);
+  }
 
+  .feature-icon-wrap i {
+    color: #FFBE00;
+  }
+
+  :host ::ng-deep .feature-card.p-card:hover .feature-icon-wrap {
+    background: #FFBE00;
+    border-color: #FFBE00;
+  }
+
+  :host ::ng-deep .feature-card.p-card:hover .feature-icon-wrap i {
+    color: #0a3764;
+  }
+
+  .feature-link {
+    color: #FFBE00 !important;
+    border-bottom-color: rgba(255, 190, 0, 0.35);
+  }
+
+  .feature-link:hover {
+    color: #ffffff !important;
+    border-color: #ffffff;
+  }
+
+  /* ── Trust bar ── */
+  .features-trust {
+    background: #1a2130;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .trust-item {
+    color: #d5dae3;
+  }
+
+  .trust-item i {
+    color: #FFBE00;
+  }
+
+  .trust-sep {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}

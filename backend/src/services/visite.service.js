@@ -1,3 +1,4 @@
+import { constants } from "node:buffer";
 import prisma from "../config/db.config.js";
 
 /**
@@ -104,8 +105,37 @@ export const createVisiteService = async (data) => {
 /**
  * Récupérer toutes les visites
  */
-export const getAllVisiteService = async () => {
-  return prisma.visite.findMany({
+export const getAllVisiteService = async ({ page = 1, limit = 10, categorie, search } = {}) => {
+  const skip = (page - 1) * limit;
+  const where = {
+    isDeleted: false,
+    ...(search && {
+      OR: [
+        { nom: { constants: search } },
+        { description:  { contains: search } },
+        { date_debut: {contains : search} }
+      ],
+    }),
+  };
+  const [visites, total] = await prisma.$transaction([
+    prisma.visite.findMany({
+      where,
+      skip,
+      take: limit
+    }),
+    prisma.visite.count({ where })
+  ]);
+  const totalPages = Math.ceil(total / limit);
+  return {
+    data: visites,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1
+    },
     include: {
       guide: true,
       hotel: true,
@@ -114,7 +144,7 @@ export const getAllVisiteService = async () => {
         include: { site: true }
       }
     }
-  });
+  };
 };
 
 /**
@@ -134,21 +164,6 @@ export const getVisiteByIdService = async (id_visite) => {
   });
 };
 
-
-/**
- * Supprimer une visite
- */
-export const deleteVisiteService = async (id_visite) => {
-  try {
-    await prisma.visiteSite.deleteMany({ where: { id_visite } });
-    return prisma.visite.delete({ where: { id_visite } });
-    
-  } catch (error) {
-    if (error.code === 'P2025') return null; // Visite non trouvée
-    throw error;
-  }
-  
-};
 
 
 /**

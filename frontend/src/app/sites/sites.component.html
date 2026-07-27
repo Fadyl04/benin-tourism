@@ -1,1 +1,379 @@
-<p>sites works!</p>
+<p-toast />
+<p-confirmDialog />
+<!-- {{-- BUTTON POUR AJOUTETR UN SITE TOURISTIQUE --}} -->
+<div class="d-flex justify-content-between align-items-center mt-3 mb-4 p-3 bg-light shadow-sm rounded">
+  <h2 class="mb-0" style="color: #0a3764">Liste des sites touristiques</h2>
+    @if (canCreateSite) {
+        <button
+            type="button"
+            class="btn"
+            style="background-color: #0a3764; border-color: #0a3764; color: #fff;"
+            (click)="openCreateDialog()"
+        >
+            <i class="fa-solid fa-plus me-1"></i> Nouveau site
+        </button>
+    }
+</div>
+
+<!-- MODAL D'AJOUT ET DE MODIFICATION DE SITE TOURISTIQUE -->
+<p-dialog
+    [(visible)]="dialogVisible"
+    [modal]="true"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '640px', maxWidth: '95vw' }"
+    [header]="isEditMode ? 'Modifier le site touristique' : 'Nouveau site touristique'"
+    styleClass="st-dialog"
+    (onHide)="closeDialog()"
+>
+
+    <div class="st-dialog-content">
+        <form [formGroup]="form" class="st-form">
+
+            <!-- ── Image upload ── -->
+            <div class="st-image-zone" [class.st-image-zone--filled]="!!imagePreview">
+                @if (imagePreview) {
+                    <img [src]="imagePreview" alt="Aperçu" class="st-image-zone__img" />
+                    <button type="button" class="st-image-zone__remove" (click)="removeImage()">
+                        <i class="pi pi-times"></i>
+                    </button>
+                } @else {
+                    <div class="st-image-zone__placeholder">
+                        <i class="pi pi-image st-image-zone__icon"></i>
+                        <p class="st-image-zone__text">Photo du site</p>
+                        <p class="st-image-zone__hint">JPG, PNG — max 5 Mo</p>
+                    </div>
+                    <p-fileUpload
+                        mode="basic"
+                        chooseLabel=" "
+                        accept="image/*"
+                        [maxFileSize]="5242880"
+                        (onSelect)="onImageUpload($event)"
+                        styleClass="st-file-overlay"
+                    />
+                }
+            </div>
+
+            <!-- ── Nom ── -->
+            <div class="st-field">
+                <label class="st-label">Nom du site <span class="st-required">*</span></label>
+                <div class="st-input-wrap">
+                    <i class="pi pi-map-marker"></i>
+                    <input
+                        pInputText
+                        formControlName="nom"
+                        placeholder="Ex : Pendjari, Ouidah…"
+                        class="st-input"
+                        [class.st-input--error]="isInvalid('nom')"
+                    />
+                </div>
+                @if (isInvalid('nom')) {
+                    <small class="st-error">Nom requis (3 caractères min.)</small>
+                }
+            </div>
+
+            <!-- ── Catégorie ── -->
+            <div class="st-field">
+                <label class="st-label">Catégorie <span class="st-required">*</span></label>
+                <div class="st-input-wrap">
+                    <i class="pi pi-tag"></i>
+                    <input
+                        pInputText
+                        formControlName="categorie"
+                        placeholder="Ex : Plage, Parc national, Patrimoine…"
+                        class="st-input"
+                        [class.st-input--error]="isInvalid('categorie')"
+                    />
+                </div>
+                @if (isInvalid('categorie')) {
+                    <small class="st-error">Catégorie requise (2 caractères min.)</small>
+                }
+            </div>
+
+            <!-- ── Localisation ── -->
+            <div class="st-field">
+                <label class="st-label">Localisation <span class="st-required">*</span></label>
+                <div class="st-input-wrap">
+                    <i class="pi pi-map"></i>
+                    <input
+                        pInputText
+                        formControlName="localisation"
+                        placeholder="Ex : Natitingou, Département de l'Atacora"
+                        class="st-input"
+                        [class.st-input--error]="isInvalid('localisation')"
+                    />
+                </div>
+                @if (isInvalid('localisation')) {
+                    <small class="st-error">Localisation requise</small>
+                }
+            </div>
+
+            <!-- ── Horaire ── -->
+            <div class="st-field">
+                <label class="st-label">Horaires d'ouverture <span class="st-required">*</span></label>
+                <div class="st-input-wrap">
+                    <i class="pi pi-clock"></i>
+                    <input
+                        pInputText
+                        formControlName="horaire"
+                        placeholder="Ex : Lun–Ven 08h–18h, Sam 09h–16h"
+                        class="st-input"
+                        [class.st-input--error]="isInvalid('horaire')"
+                    />
+                </div>
+                @if (isInvalid('horaire')) {
+                    <small class="st-error">Horaire requis</small>
+                }
+            </div>
+
+            <!-- ── Description ── -->
+            <div class="st-field">
+                <label class="st-label">Description <span class="st-required">*</span></label>
+                <textarea
+                    pInputTextarea
+                    formControlName="description"
+                    placeholder="Décrivez le site, son histoire, ses attraits…"
+                    rows="4"
+                    class="st-textarea"
+                    [class.st-textarea--error]="isInvalid('description')"
+                ></textarea>
+                @if (isInvalid('description')) {
+                    <small class="st-error">Description requise (10 caractères min.)</small>
+                }
+            </div>
+
+        </form>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="st-footer">
+        <button type="button" class="st-btn st-btn--ghost" (click)="closeDialog()">
+            Annuler
+        </button>
+        <button
+            type="button"
+            class="st-btn st-btn--primary"
+            [disabled]="saving"
+            (click)="save()"
+        >
+            @if (saving) {
+                <span class="st-spinner"></span>
+            } @else {
+                <i class="pi" [class.pi-save]="!isEditMode" [class.pi-check]="isEditMode"></i>
+                {{ isEditMode ? 'Modifier' : 'Enregistrer' }}
+            }
+        </button>
+    </div>
+
+</p-dialog>
+
+<!-- LISTES DES SITES TOURISTIQUES -->
+<div class="card">
+    <div class="card-body">
+        <p-table
+            [value]="sites"
+            [lazy]="true"
+            [paginator]="true"
+            [totalRecords]="totalRecords"
+            [rows]="limit"
+            [loading]="loading"
+            (onLazyLoad)="onLazyLoad($event)"
+            [rowsPerPageOptions]="[10, 25, 50, 100]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} éléments"
+        >
+            <!-- Recherche -->
+            <ng-template pTemplate="caption">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="st-search-wrap">
+                        <i class="pi pi-search st-search-icon"></i>
+                        <input
+                            #q
+                            type="search"
+                            class="st-search-input"
+                            placeholder="Rechercher un site..."
+                            [value]="search"
+                            (input)="onSearchInput(q.value)"
+                        />
+                    </div>
+                </div>
+            </ng-template>
+
+            <!-- En-tête -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>N°</th>
+                    <th>Nom</th>
+                    <th>Catégorie</th>
+                    <th>Localisation</th>
+                    <th>Horaires d'ouverture</th>
+                    <th>Date création</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+
+            <!-- Corps du tableau -->
+            <ng-template pTemplate="body" let-site let-rowIndex="rowIndex">
+                <tr>
+                    <td>{{ rowIndex + 1 }}</td>
+                    <td><strong>{{ site.nom }}</strong></td>
+                    <td>
+                        <p-tag
+                        [value]="site.categorie"
+                        [severity]="getCategorieSeverity(site.categorie)"
+                        />
+                    </td>
+                    <td> {{ site.localisation }}</td>
+                    <td>{{ site.horaire }}</td>
+                    <td>{{ site.createdAt | date:'dd/MM/yyyy' }}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+
+                            @if (canUpdateSite) {
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary"
+                                    (click)="openEditDialog(site)"
+                                    title="Modifier"
+                                >
+                                    <i class="pi pi-pencil"></i>
+                                </button>
+                            }
+
+                            @if (canDeleteSite) {
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    (click)="confirmDelete(site)"
+                                    title="Supprimer"
+                                >
+                                    <i class="pi pi-trash"></i>
+                                </button>
+                            }
+
+                            @if(canViewSite) {
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-info"
+                                    (click)="openViewDetail(site)"
+                                    title="Voir les détails"
+                                >
+                                    <i class="pi pi-eye"></i>
+                                </button>
+                            }
+
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Aucun site touristique disponible -->
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <div class="p-4">
+                            <i class="pi pi-inbox" style="font-size: 3rem; color: #6b7280;"></i>
+                            <p class="mt-3 text-muted">
+                                {{ search || categorieFilter
+                                    ? 'Aucun résultat trouvé pour votre recherche'
+                                    : 'Aucun site touristique disponible'
+                                }}
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+
+        </p-table>
+    </div>
+</div>
+
+<!-- VOIR LES DETAILS DES SITES TOURISTIQUES -->
+<p-dialog
+  [(visible)]="viewDialogVisible"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '620px', maxWidth: '95vw' }"
+  header="Détails du site touristique"
+  styleClass="st-view-dialog"
+  (onHide)="closeViewDialog()"
+>
+    @if (selectedSite) {
+        <div class="st-dialog-content">
+            <div class="st-view">
+                <!-- Image -->
+                <div class="st-view-image">
+                    @if (selectedSite.image) {
+                    <img [src]="selectedSite.image" [alt]="selectedSite.nom" />
+                    } @else {
+                    <div class="st-view-image__placeholder">
+                        <i class="pi pi-image"></i>
+                    </div>
+                    }
+                    <p-tag
+                        [value]="selectedSite.categorie"
+                        [severity]="getCategorieSeverity(selectedSite.categorie)"
+                        styleClass="st-view-tag"
+                    />
+                </div>
+
+                <!-- Nom -->
+                <h3 class="st-view-name">{{ selectedSite.nom }}</h3>
+
+                <!-- Meta rapide : localisation + horaire -->
+                <div class="st-view-meta">
+                    <div class="st-view-meta__item">
+                    <i class="pi pi-map-marker"></i>
+                    <span>{{ selectedSite.localisation }}</span>
+                    </div>
+                    <div class="st-view-meta__item">
+                    <i class="pi pi-clock"></i>
+                    <span>{{ selectedSite.horaire }}</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="st-view-section">
+                    <h4 class="st-view-section__title">Description</h4>
+                    <p class="st-view-description">{{ selectedSite.description }}</p>
+                </div>
+
+            </div>
+        </div>
+        
+    }
+    <!-- ── Footer ── -->
+    <div class="st-footer">
+        <div class="st-footer">
+            <button type="button" class="st-btn st-btn--ghost" (click)="closeViewDialog()">
+                Fermer
+            </button>
+        </div>   
+    </div>
+    
+</p-dialog>
+
+<!-- Stat cards (ligne) -->
+<div class="stats-row mt-4">
+    <div class="stat-card soft-secondary">
+        <div class="stat-label">Sites touristiques totaux</div>
+        <div class="stat-value"><!-- {{}} --></div>
+    </div>
+
+    <div class="stat-card soft-green"> 
+        <div class="stat-label">Sites touristiques visités</div>
+        <div class="stat-value"><!-- {{}} --></div>
+    </div>
+
+    <div class="stat-card soft-muted">
+        <div class="stat-label">Sites touristiques déplacés vers la corbeille</div>
+        <div class="stat-value"><!-- {{}} --></div>
+    </div>
+      
+</div>
+
+

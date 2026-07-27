@@ -2,6 +2,7 @@ import prisma from '../../config/db.config.js';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../../utils/jwt.js';
 import crypto from "crypto";
+import { getPermissionsForRole } from '../../config/rolePermissions.js';
 import { sendResetPasswordEmail } from '../../utils/sendMail.js';
 
 
@@ -27,12 +28,10 @@ export const loginUserService = async (email, password) => {
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.password);
-
   if (!isPasswordValid) {
     throw new Error("Mot de passe incorrect");
   }
 
-  // Blocage prestataire non validé
   if (
     user.role === "prestataire" &&
     user.prestataire?.statut_validation !== "valide"
@@ -40,13 +39,15 @@ export const loginUserService = async (email, password) => {
     throw new Error("Compte prestataire en attente de validation");
   }
 
+  const permissions = getPermissionsForRole(user.role);
+
   const token = generateToken({
     id_user: user.id_user,
     email: user.email,
-    role: user.role
+    role: user.role,
+    permissions, // ← ajouté au JWT
   });
 
-  // règle FIRST LOGIN
   const forcePasswordChange =
     (user.role === "admin" || user.role === "prestataire") &&
     user.firstLogin === true;
@@ -58,7 +59,8 @@ export const loginUserService = async (email, password) => {
       prenom: user.prenom,
       email: user.email,
       role: user.role,
-      firstLogin: user.firstLogin
+      firstLogin: user.firstLogin,
+      permissions, // ← ajouté à la réponse HTTP pour le frontend
     },
     token,
     forcePasswordChange

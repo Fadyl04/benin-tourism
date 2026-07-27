@@ -1,15 +1,40 @@
 :root {
-    --brand-primary: #0a3764;
-    --brand-primary-hover: #073b6ee8;
-    --brand-secondary: #008559;
-    --brand-secondary-hover: #006e4a;
-    --brand-tertiary: #FFBE00;
-    --focus-ring: rgba(10, 55, 100, 0.25);
-    --p-primary-color: var(--brand-primary);
-    --p-highlight-bg: var(--brand-tertiary);
-    --p-text-color: white;
+  --brand-primary: #0a3764;
+  --brand-primary-hover: #073b6ee8;
+  --brand-secondary: #008559;
+  --brand-secondary-hover: #006e4a;
+  --brand-tertiary: #FFBE00;
+  --focus-ring: rgba(10, 55, 100, 0.25);
+  --p-primary-color: var(--brand-primary);
+  --p-highlight-bg: var(--brand-tertiary);
+  --p-text-color: white;
+
+  --gray-50:  #f8f9fb;
+  --gray-100: #f0f2f5;
+  --gray-200: #e2e6ec;
+  --gray-300: #cdd3db;
+  --gray-400: #9ca3af;
+  --gray-500: #7a8595;
+  --gray-700: #3c4555;
+  --gray-900: #1a1f2b;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-50:  #12161f;
+    --gray-100: #1a2130;
+    --gray-200: #2a3242;
+    --gray-300: #3a4356;
+    --gray-400: #6b7385;
+    --gray-500: #9aa3b5;
+    --gray-700: #d5dae3;
+    --gray-900: #f1f4f9;
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
 html, body { 
   height: 100%; 
 }
@@ -22,10 +47,10 @@ body {
 .text-brand-secondary { color: var(--brand-secondary) !important; }
 
 .text-3d {
-    text-shadow:
-        0 1px 0 rgba(0,0,0,0.08), 0 2px 0 rgba(0,0,0,0.07),
-        0 3px 0 rgba(0,0,0,0.06), 0 4px 0 rgba(0,0,0,0.05),
-        0 6px 12px rgba(0,0,0,0.25);
+  text-shadow:
+  0 1px 0 rgba(0,0,0,0.08), 0 2px 0 rgba(0,0,0,0.07),
+  0 3px 0 rgba(0,0,0,0.06), 0 4px 0 rgba(0,0,0,0.05),
+  0 6px 12px rgba(0,0,0,0.25);
 }
 
 .btn-store {
@@ -315,3 +340,151 @@ body {
   cursor: default !important;
 }
  
+
+/* ════════════════════════════════════════════════════
+   DARK MODE — overrides globaux
+════════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+
+  body {
+    background: #12161f;
+    color: #e8ecf3;
+  }
+
+  /* ── Auth Dialog ── */
+  .auth-dialog .p-dialog {
+    background: #1c2333 !important;
+    color-scheme: dark !important;
+  }
+  .auth-dialog .p-dialog-content {
+    background: #1c2333 !important;
+    color: #e8ecf3 !important;
+    color-scheme: dark !important;
+  }
+  .auth-dialog .p-dialog-footer {
+    background: #161c29 !important;
+    border-top: 1px solid rgba(255,255,255,0.08) !important;
+  }
+  .auth-dialog .p-dialog-content input,
+  .auth-dialog .p-dialog-content .p-inputtext {
+    background: #12161f !important;
+    color: #e8ecf3 !important;
+    border-color: rgba(255,255,255,0.16) !important;
+    color-scheme: dark !important;
+  }
+  .auth-dialog .p-dialog-content input:focus,
+  .auth-dialog .p-dialog-content .p-inputtext:focus {
+    background: #12161f !important;
+    border-color: #FFBE00 !important;
+  }
+  .auth-dialog .p-dialog-content input::placeholder {
+    color: rgba(255,255,255,0.35) !important;
+  }
+  .auth-dialog .p-checkbox, .auth-dialog .p-checkbox * {
+    color-scheme: dark !important;
+  }
+  .auth-dialog .p-checkbox .p-checkbox-box {
+    background: #12161f !important;
+    border: 2px solid rgba(255,255,255,0.3) !important;
+  }
+  .auth-dialog .p-checkbox .p-checkbox-box.p-highlight {
+    background: #FFBE00 !important;
+    border-color: #FFBE00 !important;
+  }
+  .auth-dialog .p-checkbox .p-checkbox-box svg,
+  .auth-dialog .p-checkbox .p-checkbox-box .p-checkbox-icon {
+    color: #0a3764 !important; fill: #0a3764 !important; stroke: #0a3764 !important;
+  }
+  .auth-dialog .p-dialog {
+    color-scheme: dark !important;
+    --p-checkbox-checked-background: #FFBE00;
+    --p-checkbox-checked-border-color: #FFBE00;
+    --p-checkbox-icon-color: #0a3764;
+    --p-inputtext-background: #12161f;
+    --p-inputtext-color: #e8ecf3;
+  }
+  .p-dialog-mask:has(.auth-dialog) {
+    background: rgba(0,0,0,0.65) !important;
+  }
+
+  /* ── Datepicker ── */
+  .p-datepicker-panel,
+  .p-datepicker-panel * {
+    color-scheme: dark !important;
+  }
+  .p-datepicker-panel {
+    background: #1c2333 !important;
+    color: #e8ecf3 !important;
+    border-color: #2a3242 !important;
+  }
+  .p-datepicker-panel .p-datepicker-calendar-container {
+    background: #1c2333 !important;
+  }
+  .p-datepicker-panel thead tr th {
+    background: #161c29 !important;
+    color: #9aa3b5 !important;
+  }
+  .p-datepicker-panel tbody tr td {
+    background: #1c2333 !important;
+  }
+  .p-datepicker-panel tbody tr td > span,
+  .p-datepicker-panel tbody tr td > button {
+    background: #1c2333 !important;
+    color: #e8ecf3 !important;
+  }
+  .p-datepicker-panel tbody tr td > span:hover,
+  .p-datepicker-panel tbody tr td > button:hover {
+    background: rgba(255,190,0,0.14) !important;
+    color: #FFBE00 !important;
+  }
+  .p-datepicker-panel tbody tr td.p-datepicker-today > span,
+  .p-datepicker-panel tbody tr td.p-datepicker-today > button {
+    background: #2a2410 !important;
+    color: #FFBE00 !important;
+    border: 1.5px solid #FFBE00 !important;
+  }
+  .p-datepicker-panel tbody tr td > span.p-disabled,
+  .p-datepicker-panel tbody tr td > button.p-disabled,
+  .p-datepicker-panel tbody tr td > span[disabled],
+  .p-datepicker-panel tbody tr td > button[disabled] {
+    color: #3a4356 !important;
+    background: #1c2333 !important;
+  }
+  .p-datepicker-panel tbody tr td.p-datepicker-other-month > span,
+  .p-datepicker-panel tbody tr td.p-datepicker-other-month > button {
+    color: #3a4356 !important;
+  }
+  .p-datepicker-panel .p-datepicker-footer {
+    background: #161c29 !important;
+    border-top: 1px solid #2a3242 !important;
+  }
+  .p-datepicker-panel [aria-disabled="true"] {
+    color: #3a4356 !important;
+  }
+
+  /* ── Select dropdown (Genre) ── */
+  .p-select-overlay {
+    background: #1c2333 !important;
+    border-color: #2a3242 !important;
+    color-scheme: dark !important;
+  }
+  .p-select-overlay .p-select-list-container {
+    background: #1c2333 !important;
+  }
+  .p-select-overlay .p-select-option {
+    background: #1c2333 !important;
+    color: #e8ecf3 !important;
+  }
+  .p-select-overlay .p-select-option:hover,
+  .p-select-overlay .p-select-option.p-focus {
+    background: #2a3242 !important;
+    color: #ffffff !important;
+  }
+  .p-select-overlay .p-select-option.p-selected {
+    background: rgba(255,190,0,0.14) !important;
+    color: #FFBE00 !important;
+  }
+  .p-select {
+    color-scheme: dark !important;
+  }
+}

@@ -1,0 +1,436 @@
+/* ================================================
+   GRAPH COMPONENT
+   Tableau de bord — KPI, graphiques et tableaux
+   ================================================ */
+
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Montserrat', sans-serif;
+
+  /* ── Tokens (light) ── */
+  --brand-primary: #0a3764;
+  --brand-primary-rgb: 10, 55, 100;
+  --brand-secondary: #008559;
+  --brand-secondary-rgb: 0, 133, 89;
+  --brand-gold: #FFBE00;
+  --brand-gold-rgb: 255, 190, 0;
+  --info: #1a6fa8;
+  --info-rgb: 26, 111, 168;
+  --danger: #e74c3c;
+  --danger-rgb: 231, 76, 60;
+
+  --surface: #f4f6fa;
+  --card-bg: #ffffff;
+  --border: rgba(10, 55, 100, 0.08);
+  --text-primary: #0f1c2e;
+  --text-muted: #7a8ea8;
+
+  --shadow-sm: 0 2px 8px rgba(10, 55, 100, 0.05);
+  --shadow-md: 0 12px 32px rgba(10, 55, 100, 0.12);
+  --radius-md: 12px;
+  --radius-sm: 6px;
+  --transition: 220ms cubic-bezier(.4,0,.2,1);
+
+  color-scheme: light;
+  background: var(--surface);
+}
+
+/* ══════════════════════════════════════════════════
+   DARK MODE — suit la préférence système
+══════════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  :host {
+    --surface: #0b1420;
+    --card-bg: #121b29;
+    --border: rgba(255, 255, 255, 0.08);
+    --text-primary: #eef2f7;
+    --text-muted: #92a4bd;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   ACCESSIBILITÉ — reduced motion & focus-visible
+══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .graph-page, .graph-page * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .kpi-card:hover { transform: none !important; }
+}
+
+::ng-deep .graph-page button:focus-visible,
+::ng-deep .graph-page a:focus-visible {
+  outline: 2px solid var(--brand-primary) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::ng-deep .graph-page button:focus-visible,
+  ::ng-deep .graph-page a:focus-visible {
+    outline-color: var(--brand-gold) !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   PAGE PRINCIPALE
+══════════════════════════════════════════════════ */
+.graph-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ══════════════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════════════ */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.page-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.page-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.page-actions button {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* ══════════════════════════════════════════════════
+   KPI
+══════════════════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.kpi-card {
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.kpi-blue::before  { background: var(--brand-primary); }
+.kpi-green::before { background: var(--brand-secondary); }
+.kpi-gold::before  { background: var(--brand-gold); }
+.kpi-navy::before  { background: var(--info); }
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.kpi-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  font-size: 1.15rem;
+}
+
+.kpi-blue .kpi-icon  { background: rgba(var(--brand-primary-rgb), 0.08); color: var(--brand-primary); }
+.kpi-green .kpi-icon { background: rgba(var(--brand-secondary-rgb), 0.1); color: var(--brand-secondary); }
+.kpi-gold .kpi-icon  { background: rgba(var(--brand-gold-rgb), 0.14); color: #9a7200; }
+.kpi-navy .kpi-icon  { background: rgba(var(--info-rgb), 0.1); color: var(--info); }
+
+@media (prefers-color-scheme: dark) {
+  .kpi-blue .kpi-icon  { background: rgba(var(--brand-primary-rgb), 0.22); }
+  .kpi-green .kpi-icon { background: rgba(var(--brand-secondary-rgb), 0.24); }
+  .kpi-gold .kpi-icon  { background: rgba(var(--brand-gold-rgb), 0.22); color: var(--brand-gold); }
+  .kpi-navy .kpi-icon  { background: rgba(var(--info-rgb), 0.24); }
+}
+
+.kpi-delta {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.kpi-delta.positive { color: var(--brand-secondary); background: rgba(var(--brand-secondary-rgb), 0.1); }
+.kpi-delta.negative { color: var(--danger); background: rgba(var(--danger-rgb), 0.1); }
+
+.kpi-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.kpi-label {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.kpi-value {
+  color: var(--text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ══════════════════════════════════════════════════
+   GRAPHIQUES
+══════════════════════════════════════════════════ */
+.charts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1.1rem;
+}
+
+.chart-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card-header p {
+  margin: 0.1rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.chart-container {
+  min-height: 240px;
+  padding: 1.2rem 1.4rem 1.4rem;
+}
+
+.chart-container.donut-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ══════════════════════════════════════════════════
+   TABLEAUX
+══════════════════════════════════════════════════ */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.table-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+.table-card ::ng-deep .p-datatable-wrapper {
+  overflow-x: auto;
+}
+
+/* ── PrimeNG table (scopée via styleClass="graph-table") ── */
+::ng-deep .graph-table.p-datatable .p-datatable-thead > tr > th {
+  padding: 0.7rem 1.2rem !important;
+  border-color: var(--border) !important;
+  background: color-mix(in srgb, var(--card-bg) 92%, var(--brand-primary) 8%) !important;
+  color: var(--text-muted) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+::ng-deep .graph-table.p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.75rem 1.2rem !important;
+  border-color: var(--border) !important;
+  color: var(--text-primary) !important;
+  background: var(--card-bg) !important;
+  font-size: 0.8rem !important;
+  vertical-align: middle !important;
+}
+
+::ng-deep .graph-table.p-datatable .p-datatable-tbody > tr:hover > td {
+  background: rgba(var(--brand-primary-rgb), 0.03) !important;
+}
+
+/* ── Utilisateurs ── */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.user-info strong {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.user-info span {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-label {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: rgba(var(--brand-primary-rgb), 0.08);
+  color: var(--brand-primary);
+  font-size: 0.67rem;
+  font-weight: 600;
+}
+
+.date-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+/* ── Événements ── */
+.event-name {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-primary);
+}
+
+.event-name i { color: var(--brand-primary); font-size: 0.75rem; }
+.event-name strong { font-size: 0.8rem; font-weight: 600; }
+
+.location-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.location-label i { color: var(--brand-primary); font-size: 0.7rem; }
+
+.visits-value {
+  color: var(--brand-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.empty-message {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media (max-width: 1280px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 960px) {
+  .tables-grid { grid-template-columns: 1fr; }
+  .card-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .page-actions button { width: 100%; }
+  .page-title { font-size: 1.7rem; }
+  .chart-container { padding: 1rem; min-height: 200px; }
+
+  ::ng-deep .graph-table.p-datatable .p-datatable-thead > tr > th,
+  ::ng-deep .graph-table.p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.65rem 0.75rem !important;
+  }
+}

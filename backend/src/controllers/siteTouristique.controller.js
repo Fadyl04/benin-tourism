@@ -26,7 +26,7 @@ export const createSiteController = async (req, res) => {
         message: "L'image est obligatoire"
       });
     }
-    const imagePath = `/uploads/${req.file.filename}`;
+    const imagePath = `/uploads/sites/${req.file.filename}`;
 
     // Validation avec Zod
     const validatedData = siteTouristiqueSchema.safeParse({ ...req.body, image: imagePath });
@@ -78,40 +78,32 @@ export const createSiteController = async (req, res) => {
  */
 export const getAllSiteController = async (req, res) => {
   try {
-
-    let { page = "1", limit = "10", categorie } = req.query;
+    let { page = "1", limit = "10", categorie, search } = req.query;
     page = Number(page);
     limit = Number(limit);
-    if (!Number.isInteger(page) || page < 1) {
-      page = 1;
-    }
-    if (!Number.isInteger(limit) || limit < 1) {
-      limit = 10;
-    }
-    if (limit > 100) {
-      limit = 100;
-    }
+    if (!Number.isInteger(page) || page < 1) page = 1;
+    if (!Number.isInteger(limit) || limit < 1) limit = 10;
+    if (limit > 100) limit = 100;
+
     const result = await getAllSiteService({
       page,
       limit,
-      categorie
+      categorie,
+      search, // ← ajouté
     });
-
 
     return res.status(200).json({
       success: true,
       data: result.data,
       pagination: result.pagination
-
     });
 
   } catch (error) {
-    console.error( "Erreur getAllSiteController:",error );
+    console.error("Erreur getAllSiteController:", error);
     return res.status(500).json({
       success: false,
-      message:"Erreur serveur lors de la récupération des sites"
+      message: "Erreur serveur lors de la récupération des sites"
     });
-
   }
 }; 
 
@@ -155,8 +147,9 @@ export const updateSiteController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}`
-      : undefined;
+    const imagePath = req.file
+      ? `/uploads/sites/${req.file.filename}`
+    : undefined;
 
     const updateData = {
       ...req.body,
