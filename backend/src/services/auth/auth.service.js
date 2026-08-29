@@ -6,15 +6,7 @@ import { getPermissionsForRole } from '../../config/rolePermissions.js';
 import { sendResetPasswordEmail } from '../../utils/sendMail.js';
 
 
-// Génération d'un mot de passe aléatoire
-export const generatePassword = () => {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-  let password = '';
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-};
+
 
 /* Login user */
 export const loginUserService = async (email, password) => {
@@ -90,103 +82,7 @@ export const registerClientService = async ({ nom, prenom, email, password }) =>
 };
 
 
-/**
- * Inscription / demande prestataire
- */
-export const registerPrestataireService = async (data) => {
-  const {
-    nom, prenom, email, password,
-    type, genre, date_naissance,
-    adresse, ville, telephone,
-    annee_experience, document_justificatif, image
-  } = data;
 
-  try {
-    // Vérification de l'unicité de l'email
-    const existingUser = await prisma.user.findUnique({ 
-      where: { email } 
-    });
-    
-    if (existingUser) {
-      throw new Error('Email déjà utilisé');
-    }
-
-    // Vérification de l'unicité du téléphone
-    const existingPhone = await prisma.prestataire.findFirst({
-      where: { telephone }
-    });
-
-    if (existingPhone) {
-      throw new Error('Numéro de téléphone déjà utilisé');
-    }
-
-    if (!date_naissance) {
-     throw new Error("Date de naissance obligatoire");
-    }
-
-    // Hash du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Création de l'utilisateur et du prestataire
-    const newUser = await prisma.user.create({
-      data: {
-        nom: nom.trim(),
-        prenom: prenom.trim(),
-        email: email.toLowerCase().trim(),
-        password: hashedPassword,
-        role: 'prestataire',
-        firstLogin: true,
-        prestataire: {
-          create: {
-            type,
-            genre,
-            date_naissance: new Date(date_naissance),
-            adresse: adresse?.trim(),
-            ville: ville?.trim(),
-            telephone: telephone.trim(),
-            annee_experience: parseInt(annee_experience),
-            document_justificatif: document_justificatif || null,
-            statut_validation: 'en_attente',
-            image: image || null,
-            statut: 'inactif'
-          }
-        }
-      },
-      include: { 
-        prestataire: true 
-      }
-    });
-
-    // Envoi d'email de confirmation (non bloquant)
-    try {
-      await demandeEnAttenteMail(
-        newUser,
-        "Votre inscription a été reçue et est en attente de validation par l'administrateur."
-      );
-    } catch (emailError) {
-      console.error('Erreur lors de l\'envoi de l\'email:', emailError);
-    }
-
-    // Retourner les données sans le mot de passe
-    const { password: _, ...userWithoutPassword } = newUser;
-    
-    return userWithoutPassword;
-
-  } catch (error) {
-    console.error('Error in registerPrestataireService:', error);
-    
-    // Gestion spécifique des erreurs Prisma
-    if (error.code === 'P2002') {
-      const target = error.meta?.target?.[0];
-      const message = target === 'email' 
-        ? 'Email déjà utilisé' 
-        : 'Une entrée avec ces informations existe déjà';
-      throw new Error(message);
-    }
-    
-    throw error;
-  }
-};
 
 /* LogoutUser */
 export const logoutUserService = async (user) => {

@@ -40,7 +40,7 @@ router.post('/register/client', registerClientController);
  * Register prestataire
  */
 router.post(
-    '/register/prestataire',
+    '/demande/prestataire',
 
     prestataireUpload.fields([
         { name: 'image', maxCount: 1 },

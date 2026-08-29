@@ -1,12 +1,19 @@
 import {
     loginUserService,
     registerClientService,
-    registerPrestataireService,
     firstLoginChangePassword,
     requestPasswordReset,
     resetPassword,
     logoutUserService
 } from '../../services/auth/auth.service.js';
+
+import {
+    registerPrestataireService
+} from '../../services/prestataire/prestataire.service.js';
+
+import {
+    handlePrestataireRegistered
+} from '../../services/prestataire/prestataire-workflow.service.js';
 
 import {
     getCookieOptions, 
@@ -110,68 +117,67 @@ export const registerClientController = async (req, res) => {
  *  register prestataire
  */
 export const registerPrestataireController = async (req, res) => {
-    try {
-        console.log("BODY REÇU:", req.body);
-        console.log("FILES REÇUS:", req.files);
-        
-        // Récupération des fichiers
-        const docFile = req.files?.document_justificatif?.[0] || null;
-        const imageFile = req.files?.image?.[0] || null;
-    
-        // Vérification fichier justificatif obligatoire
-        if (!docFile) {
-            return res.status(400).json({
-            success: false,
-            message: "Le document justificatif est obligatoire"
-            });
-        }
+  try {
+    const docFile = req.files?.document_justificatif?.[0] || null;
+    const imageFile = req.files?.image?.[0] || null;
 
-        // Validation des données avec Zod
-        const parsed = PrestataireSchema.safeParse(req.body);
-        if (!parsed.success) {
-            console.log("Validation errors:", parsed.error);
-
-            // Messages d’erreur détaillés
-            const errorDetails = parsed.error.errors.map(err => ({
-                field: err.path.join("."),
-                message: err.message
-            }));
-
-            return res.status(400).json({
-                success: false,
-                message: "Données invalides",
-                errors: errorDetails
-            });
-        }
-
-        // Appel du service
-        const user = await registerPrestataireService({
-            ...parsed.data,
-            document_justificatif: docFile.filename,
-            image: imageFile ? imageFile.filename : null
-        });
-
-        return res.status(201).json({
-            success: true,
-            message: "Demande envoyée avec succès",
-            data: {
-                id: user.id_user,
-                nom: user.nom,
-                prenom: user.prenom,
-                email: user.email,
-                role: user.role
-            }
-        });
-
-    } catch (error) {
-        console.error("Controller error:", error);
-
-        return res.status(500).json({
+    if (!docFile) {
+      return res.status(400).json({
         success: false,
-        message: error.message || "Erreur serveur"
-        });
+        message: "Le document justificatif est obligatoire"
+      });
     }
-}
+
+    const parsed = PrestataireSchema.safeParse(req.body);
+    if (!parsed.success) {
+      const errorDetails = parsed.error.issues.map(err => ({  // ← .issues au lieu de .errors
+        field: err.path.join("."),
+        message: err.message
+      }));
+      return res.status(400).json({
+        success: false,
+        message: "Données invalides",
+        errors: errorDetails
+      });
+    }
+
+    const typeFolders = { guide: 'guides', hotel: 'hotels', transport: 'transports' };
+    const imageSubfolder = typeFolders[parsed.data.type] || '';
+    const imagePath = imageFile
+      ? `/uploads/users/prestataires${imageSubfolder ? '/' + imageSubfolder : ''}/${imageFile.filename}`
+      : null;
+    const docPath = `/uploads/documents/prestataires/${docFile.filename}`;
+
+    const user = await registerPrestataireService({
+      ...parsed.data,
+      document_justificatif: docPath,
+      image: imagePath
+    });
+
+    handlePrestataireRegistered(user).catch(err =>
+      console.error('Notification prestataire échouée (non bloquant):', err)
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Demande envoyée avec succès",
+      data: {
+        id: user.id_user,
+        nom: user.nom,
+        prenom: user.prenom,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error("Controller error:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Erreur serveur"
+    });
+  }
+};
 
 /**
  * FIRST LOGIN PASSWORD CHANGE

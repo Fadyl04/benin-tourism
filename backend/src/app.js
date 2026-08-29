@@ -14,7 +14,7 @@ import { globalLimiter } from './middlewares/rateLimit.middleware.js';
 
 // Routes
 import authRoute from './routes/auth/auth.route.js';
-import prestataireRoute from './routes/auth/auth.prestataire.route.js';
+import prestataireRoute from './routes/prestataire/prestataire.route.js';
 import siteTouristiqueRoute from './routes/siteTouristique.route.js';
 import evenementRoute from './routes/evenement.route.js';
 import visiteRoute from './routes/visite.route.js';
@@ -92,8 +92,8 @@ app.use(
   ROUTES API
 */
 app.use('/api/auth', authRoute);
-/* app.use('/api/prestataire', prestataireRoute);
-app.use('/api/admin', adminRoute); */
+app.use('/api/prestataire', prestataireRoute);
+// app.use('/api/admin', adminRoute);
 app.use('/api/site', siteTouristiqueRoute);
 app.use('/api/evenement', evenementRoute);
 app.use('/api/visite', visiteRoute);
